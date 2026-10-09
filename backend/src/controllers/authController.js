@@ -22,6 +22,10 @@ const generateToken = (user) => {
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// In-memory OTP storage for forgot password
+// Map: normalizedEmail -> { otp: string, expiresAt: number }
+const resetOtpStore = new Map();
+
 const AuthController = {
   // Register new student account
   register: async (req, res) => {
@@ -255,6 +259,130 @@ const AuthController = {
       return res.status(500).json({
         success: false,
         message: 'Lỗi hệ thống khi đổi mật khẩu'
+      });
+    }
+  },
+
+  // Forgot password - Request OTP
+  forgotPassword: async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      if (!email || !emailRegex.test(email.trim())) {
+        return res.status(400).json({
+          success: false,
+          message: 'Vui lòng nhập địa chỉ email hợp lệ'
+        });
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const user = await UserModel.getByEmail(normalizedEmail);
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'Không tìm thấy tài khoản nào liên kết với email này'
+        });
+      }
+
+      // Generate 6-digit numeric OTP
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes validity
+
+      resetOtpStore.set(normalizedEmail, { otp, expiresAt });
+
+      console.log(`[PASSWORD_RESET_OTP] Email: ${normalizedEmail} | OTP: ${otp} | Expires: ${new Date(expiresAt).toISOString()}`);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Mã xác thực khôi phục mật khẩu đã được tạo thành công.',
+        otp,
+        email: normalizedEmail
+      });
+    } catch (error) {
+      console.error('Forgot Password Error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Lỗi hệ thống khi gửi yêu cầu khôi phục mật khẩu',
+        error: error.message
+      });
+    }
+  },
+
+  // Reset password with OTP
+  resetPassword: async (req, res) => {
+    try {
+      const { email, otp, newPassword, confirmPassword } = req.body;
+
+      if (!email || !otp || !newPassword) {
+        return res.status(400).json({
+          success: false,
+          message: 'Vui lòng cung cấp đầy đủ email, mã OTP và mật khẩu mới'
+        });
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const storedData = resetOtpStore.get(normalizedEmail);
+
+      if (!storedData) {
+        return res.status(400).json({
+          success: false,
+          message: 'Chưa có yêu cầu mã xác thực hoặc mã đã hết hạn. Vui lòng gửi lại yêu cầu mới'
+        });
+      }
+
+      if (Date.now() > storedData.expiresAt) {
+        resetOtpStore.delete(normalizedEmail);
+        return res.status(400).json({
+          success: false,
+          message: 'Mã xác thực OTP đã hết hạn. Vui lòng gửi lại yêu cầu mới'
+        });
+      }
+
+      if (storedData.otp !== otp.toString().trim()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Mã xác thực OTP không chính xác. Vui lòng kiểm tra lại'
+        });
+      }
+
+      if (!passwordRegex.test(newPassword)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm ít nhất 1 chữ hoa, 1 chữ thường và 1 số'
+        });
+      }
+
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({
+          success: false,
+          message: 'Mật khẩu xác nhận không khớp với mật khẩu mới'
+        });
+      }
+
+      const user = await UserModel.getByEmail(normalizedEmail);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'Không tìm thấy tài khoản người dùng'
+        });
+      }
+
+      await UserModel.updatePassword(user.id, newPassword);
+
+      // Invalidate the used OTP
+      resetOtpStore.delete(normalizedEmail);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới'
+      });
+    } catch (error) {
+      console.error('Reset Password Error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Lỗi hệ thống khi đặt lại mật khẩu',
+        error: error.message
       });
     }
   }

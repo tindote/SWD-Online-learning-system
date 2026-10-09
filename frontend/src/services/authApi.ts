@@ -4,7 +4,9 @@ import {
   RegisterData,
   AuthResponse,
   ProfileFormData,
-  ChangePasswordData
+  ChangePasswordData,
+  ForgotPasswordResponse,
+  ResetPasswordRequest
 } from '../types/auth';
 import { User } from '../types/user';
 
@@ -31,6 +33,16 @@ export const authApi = {
 
   changePassword: async (data: ChangePasswordData): Promise<{ success: boolean; message: string }> => {
     const response = await apiClient.put<{ success: boolean; message: string }>('/auth/change-password', data);
+    return response.data;
+  },
+
+  forgotPassword: async (email: string): Promise<ForgotPasswordResponse> => {
+    const response = await apiClient.post<ForgotPasswordResponse>('/auth/forgot-password', { email });
+    return response.data;
+  },
+
+  resetPassword: async (data: ResetPasswordRequest): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.post<{ success: boolean; message: string }>('/auth/reset-password', data);
     return response.data;
   }
 };
