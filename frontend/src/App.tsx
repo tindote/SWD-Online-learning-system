@@ -78,12 +78,12 @@ export function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/student/dashboard" element={<StudentDashboardPage />} />
+            <Route path="/student/dashboard" element={<Navigate to="/student/courses" replace />} />
             <Route path="/student/courses" element={<StudentCoursesPage />} />
             <Route path="/student/assignments" element={<StudentAssignmentsPage />} />
           </Route>
 
-          {/* 4. Instructor Routes (Protected, Layout with Instructor Sidebar) */}
+          {/* 4. Instructor Routes (Protected) */}
           <Route
             element={
               <ProtectedRoute allowedRoles={['instructor', 'admin']}>
@@ -91,7 +91,7 @@ export function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/instructor/dashboard" element={<InstructorDashboardPage />} />
+            <Route path="/instructor/dashboard" element={<Navigate to="/instructor/courses" replace />} />
             <Route path="/instructor/courses" element={<CoursesPage />} />
             <Route path="/instructor/lessons" element={<LessonsPage />} />
             <Route path="/instructor/assignments" element={<AssignmentsPage />} />
@@ -99,7 +99,7 @@ export function App() {
             <Route path="/instructor/enrollments" element={<EnrollmentsPage />} />
           </Route>
 
-          {/* 5. Admin Routes (Protected, Layout with Admin Sidebar) */}
+          {/* 5. Admin Routes (Protected) */}
           <Route
             element={
               <ProtectedRoute allowedRoles={['admin']}>
@@ -107,7 +107,7 @@ export function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/admin/dashboard" element={<DashboardPage />} />
+            <Route path="/admin/dashboard" element={<Navigate to="/admin/courses" replace />} />
             <Route path="/admin/courses" element={<CoursesPage />} />
             <Route path="/admin/users" element={<UsersPage />} />
             <Route path="/admin/categories" element={<CategoriesPage />} />
@@ -130,9 +130,9 @@ export function App() {
           </Route>
 
           {/* 7. Redirect Shortcuts */}
-          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="/instructor" element={<Navigate to="/instructor/dashboard" replace />} />
-          <Route path="/student" element={<Navigate to="/student/dashboard" replace />} />
+          <Route path="/admin" element={<Navigate to="/admin/courses" replace />} />
+          <Route path="/instructor" element={<Navigate to="/instructor/courses" replace />} />
+          <Route path="/student" element={<Navigate to="/student/courses" replace />} />
 
           {/* 8. Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

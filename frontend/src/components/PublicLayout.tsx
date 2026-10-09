@@ -6,7 +6,7 @@ import { GraduationCap, Mail, Phone, MapPin, Heart } from 'lucide-react';
 export const PublicLayout: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#f8fafc' }}>
-      <Header showSidebarToggle={false} />
+      <Header />
 
       <main style={{ flex: 1 }}>
         <Outlet />
@@ -43,8 +43,8 @@ export const PublicLayout: React.FC = () => {
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.9rem' }}>
                 <li><Link to="/login" style={{ color: '#94a3b8', textDecoration: 'none' }}>Đăng nhập</Link></li>
                 <li><Link to="/register" style={{ color: '#94a3b8', textDecoration: 'none' }}>Đăng ký tài khoản</Link></li>
-                <li><Link to="/student/dashboard" style={{ color: '#94a3b8', textDecoration: 'none' }}>Bảng học tập học viên</Link></li>
-                <li><Link to="/instructor/dashboard" style={{ color: '#94a3b8', textDecoration: 'none' }}>Khu vực Giảng viên</Link></li>
+                <li><Link to="/student/courses" style={{ color: '#94a3b8', textDecoration: 'none' }}>Khóa học của tôi</Link></li>
+                <li><Link to="/instructor/courses" style={{ color: '#94a3b8', textDecoration: 'none' }}>Khu vực Giảng viên</Link></li>
               </ul>
             </div>
 

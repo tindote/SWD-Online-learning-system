@@ -20,7 +20,8 @@ import {
   Video,
   PlayCircle,
   LayoutDashboard,
-  CheckCircle2
+  CheckCircle2,
+  ClipboardList
 } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
@@ -178,7 +179,7 @@ export const HomePage: React.FC = () => {
               user.role === 'instructor' ? (
                 <>
                   <Link
-                    to="/instructor/dashboard"
+                    to="/instructor/courses"
                     className="btn btn-primary"
                     style={{
                       padding: '14px 30px',
@@ -189,11 +190,11 @@ export const HomePage: React.FC = () => {
                       boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
                     }}
                   >
-                    <LayoutDashboard size={20} />
-                    Vào Studio Giảng viên
+                    <BookOpen size={20} />
+                    Khóa học tôi dạy
                   </Link>
                   <Link
-                    to="/instructor/courses"
+                    to="/instructor/assignments"
                     className="btn"
                     style={{
                       padding: '14px 28px',
@@ -205,14 +206,14 @@ export const HomePage: React.FC = () => {
                       border: '1px solid rgba(255,255,255,0.2)'
                     }}
                   >
-                    <BookOpen size={18} />
-                    Khóa học của tôi
+                    <ClipboardList size={18} />
+                    Giao bài tập & Chấm điểm
                   </Link>
                 </>
               ) : user.role === 'admin' ? (
                 <>
                   <Link
-                    to="/admin/dashboard"
+                    to="/admin/courses"
                     className="btn btn-primary"
                     style={{
                       padding: '14px 30px',
@@ -223,11 +224,11 @@ export const HomePage: React.FC = () => {
                       boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
                     }}
                   >
-                    <LayoutDashboard size={20} />
-                    Bảng Quản trị Hệ thống
+                    <BookOpen size={20} />
+                    Quản lý khóa học
                   </Link>
                   <Link
-                    to="/users"
+                    to="/admin/users"
                     className="btn"
                     style={{
                       padding: '14px 28px',
@@ -246,7 +247,7 @@ export const HomePage: React.FC = () => {
               ) : (
                 <>
                   <Link
-                    to="/student/dashboard"
+                    to="/student/courses"
                     className="btn btn-primary"
                     style={{
                       padding: '14px 30px',
@@ -257,8 +258,8 @@ export const HomePage: React.FC = () => {
                       boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
                     }}
                   >
-                    <LayoutDashboard size={20} />
-                    Bàn học của tôi
+                    <BookOpen size={20} />
+                    Khóa học của tôi
                   </Link>
                   <Link
                     to="/courses"
@@ -719,11 +720,45 @@ export const HomePage: React.FC = () => {
               user.role === 'instructor' ? (
                 <>
                   <Link
-                    to="/instructor/dashboard"
+                    to="/instructor/courses"
                     className="btn btn-primary"
                     style={{ padding: '12px 30px', fontSize: '1rem', backgroundColor: '#4f46e5', fontWeight: 700, textDecoration: 'none' }}
                   >
-                    Studio Giảng viên
+                    Khóa học tôi dạy
+                  </Link>
+                  <Link
+                    to="/instructor/assignments"
+                    className="btn btn-secondary"
+                    style={{ padding: '12px 24px', fontSize: '1rem', backgroundColor: '#ffffff', color: '#1e1b4b', textDecoration: 'none' }}
+                  >
+                    Giao bài tập & Chấm điểm
+                  </Link>
+                </>
+              ) : user.role === 'admin' ? (
+                <>
+                  <Link
+                    to="/admin/courses"
+                    className="btn btn-primary"
+                    style={{ padding: '12px 30px', fontSize: '1rem', backgroundColor: '#4f46e5', fontWeight: 700, textDecoration: 'none' }}
+                  >
+                    Quản lý khóa học
+                  </Link>
+                  <Link
+                    to="/admin/users"
+                    className="btn btn-secondary"
+                    style={{ padding: '12px 24px', fontSize: '1rem', backgroundColor: '#ffffff', color: '#1e1b4b', textDecoration: 'none' }}
+                  >
+                    Quản lý người dùng
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/student/courses"
+                    className="btn btn-primary"
+                    style={{ padding: '12px 30px', fontSize: '1rem', backgroundColor: '#4f46e5', fontWeight: 700, textDecoration: 'none' }}
+                  >
+                    Khóa học của tôi
                   </Link>
                   <Link
                     to="/courses"
@@ -731,40 +766,6 @@ export const HomePage: React.FC = () => {
                     style={{ padding: '12px 24px', fontSize: '1rem', backgroundColor: '#ffffff', color: '#1e1b4b', textDecoration: 'none' }}
                   >
                     Khám phá khóa học
-                  </Link>
-                </>
-              ) : user.role === 'admin' ? (
-                <>
-                  <Link
-                    to="/admin/dashboard"
-                    className="btn btn-primary"
-                    style={{ padding: '12px 30px', fontSize: '1rem', backgroundColor: '#4f46e5', fontWeight: 700, textDecoration: 'none' }}
-                  >
-                    Bảng Quản trị
-                  </Link>
-                  <Link
-                    to="/courses"
-                    className="btn btn-secondary"
-                    style={{ padding: '12px 24px', fontSize: '1rem', backgroundColor: '#ffffff', color: '#1e1b4b', textDecoration: 'none' }}
-                  >
-                    Xem khóa học
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/student/dashboard"
-                    className="btn btn-primary"
-                    style={{ padding: '12px 30px', fontSize: '1rem', backgroundColor: '#4f46e5', fontWeight: 700, textDecoration: 'none' }}
-                  >
-                    Bảng học tập cá nhân
-                  </Link>
-                  <Link
-                    to="/courses"
-                    className="btn btn-secondary"
-                    style={{ padding: '12px 24px', fontSize: '1rem', backgroundColor: '#ffffff', color: '#1e1b4b', textDecoration: 'none' }}
-                  >
-                    Khám phá thêm khóa học
                   </Link>
                 </>
               )

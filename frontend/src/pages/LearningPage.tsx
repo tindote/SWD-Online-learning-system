@@ -139,7 +139,7 @@ export const LearningPage: React.FC = () => {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <Link
-            to="/student/dashboard"
+            to="/student/courses"
             style={{
               display: 'flex',
               alignItems: 'center',

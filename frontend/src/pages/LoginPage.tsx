@@ -30,26 +30,25 @@ export const LoginPage: React.FC = () => {
       
       // Determine redirection destination
       if (user.role === 'student') {
-        // When logging in as student, redirect to home page '/' (or course if they were viewing one)
-        if (from && (from.startsWith('/courses') || from.startsWith('/learn'))) {
+        if (from && (from.startsWith('/courses') || from.startsWith('/learn') || from.startsWith('/student'))) {
           navigate(from, { replace: true });
         } else {
-          navigate('/', { replace: true });
+          navigate('/student/courses', { replace: true });
         }
       } else if (user.role === 'instructor') {
-        if (from && !from.startsWith('/admin')) {
+        if (from && !from.startsWith('/admin') && !from.includes('dashboard')) {
           navigate(from, { replace: true });
         } else {
-          navigate('/instructor/dashboard', { replace: true });
+          navigate('/instructor/courses', { replace: true });
         }
       } else if (user.role === 'admin') {
-        if (from) {
+        if (from && !from.includes('dashboard')) {
           navigate(from, { replace: true });
         } else {
-          navigate('/admin/dashboard', { replace: true });
+          navigate('/admin/courses', { replace: true });
         }
       } else {
-        navigate('/', { replace: true });
+        navigate('/courses', { replace: true });
       }
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Đăng nhập không thành công');

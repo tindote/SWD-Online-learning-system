@@ -50,7 +50,7 @@ export const RegisterPage: React.FC = () => {
         confirmPassword
       });
 
-      navigate('/student/dashboard', { replace: true });
+      navigate('/student/courses', { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Đăng ký không thành công');
     } finally {
