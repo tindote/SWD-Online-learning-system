@@ -13,8 +13,12 @@ import {
   SlidersHorizontal,
   RotateCcw,
   Sparkles,
-  PlayCircle
+  PlayCircle,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
+
+const ITEMS_PER_PAGE = 15;
 
 export const CourseCatalogPage: React.FC = () => {
   const { user } = useAuth();
@@ -28,6 +32,7 @@ export const CourseCatalogPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>(initialSearch);
   const [priceFilter, setPriceFilter] = useState<'all' | 'free' | 'paid'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'price_asc' | 'price_desc' | 'rating' | 'title'>('newest');
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,6 +61,7 @@ export const CourseCatalogPage: React.FC = () => {
         sortBy
       });
       setCourses(data);
+      setCurrentPage(1);
     } catch (err: any) {
       setError(err.message || 'Lỗi khi tải danh sách khóa học');
     } finally {
@@ -79,6 +85,57 @@ export const CourseCatalogPage: React.FC = () => {
     setPriceFilter('all');
     setSortBy('newest');
     setSearchParams({});
+    setCurrentPage(1);
+  };
+
+  // Pagination calculation (15 courses per page)
+  const totalCourses = courses.length;
+  const totalPages = Math.ceil(totalCourses / ITEMS_PER_PAGE) || 1;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalCourses);
+  const currentCourses = courses.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    window.scrollTo({ top: 350, behavior: 'smooth' });
+  };
+
+  const renderPaginationButtons = () => {
+    const pages: (number | string)[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (currentPage > 3) pages.push('...');
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (currentPage < totalPages - 2) pages.push('...');
+      pages.push(totalPages);
+    }
+
+    return pages.map((page, idx) => {
+      if (page === '...') {
+        return (
+          <span key={`ellipsis-${idx}`} className="pagination-ellipsis">
+            ...
+          </span>
+        );
+      }
+      const pageNum = page as number;
+      return (
+        <button
+          key={pageNum}
+          type="button"
+          className={`pagination-btn ${currentPage === pageNum ? 'active' : ''}`}
+          onClick={() => handlePageChange(pageNum)}
+          aria-label={`Trang ${pageNum}`}
+        >
+          {pageNum}
+        </button>
+      );
+    });
   };
 
   return (
@@ -278,134 +335,168 @@ export const CourseCatalogPage: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '28px' }}>
-          {courses.map((course) => (
-            <div
-              key={course.id}
-              style={{
-                backgroundColor: '#ffffff',
-                borderRadius: '16px',
-                overflow: 'hidden',
-                border: '1px solid #e2e8f0',
-                boxShadow: 'var(--shadow-sm)',
-                display: 'flex',
-                flexDirection: 'column',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 12px 28px rgba(0,0,0,0.08)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-              }}
-            >
-              {/* Thumbnail */}
-              <div style={{ height: '180px', width: '100%', position: 'relative', overflow: 'hidden', backgroundColor: '#e2e8f0' }}>
-                <img
-                  src={course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60'}
-                  alt={course.title}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  loading="lazy"
-                />
-                <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
-                  <span className="badge category-badge" style={{ backgroundColor: 'rgba(255,255,255,0.92)', color: '#4338ca', fontWeight: 700 }}>
-                    {course.category}
-                  </span>
-                </div>
-              </div>
-
-              {/* Content Body */}
-              <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.85rem' }}>
-                    <Star size={16} color="#f59e0b" fill="#f59e0b" />
-                    <span style={{ fontWeight: 700, color: '#0f172a' }}>
-                      {course.average_rating ? Number(course.average_rating).toFixed(1) : '5.0'}
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '28px' }}>
+            {currentCourses.map((course) => (
+              <div
+                key={course.id}
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: 'var(--shadow-sm)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 12px 28px rgba(0,0,0,0.08)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                }}
+              >
+                {/* Thumbnail */}
+                <div style={{ height: '180px', width: '100%', position: 'relative', overflow: 'hidden', backgroundColor: '#e2e8f0' }}>
+                  <img
+                    src={course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60'}
+                    alt={course.title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    loading="lazy"
+                  />
+                  <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
+                    <span className="badge category-badge" style={{ backgroundColor: 'rgba(255,255,255,0.92)', color: '#4338ca', fontWeight: 700 }}>
+                      {course.category}
                     </span>
-                    <span style={{ color: '#94a3b8' }}>({course.reviews_count || 1})</span>
-                  </div>
-
-                  <div style={{ fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <BookOpen size={14} />
-                    <span>{course.lessons_count || 4} bài học</span>
                   </div>
                 </div>
 
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.4, marginBottom: '8px' }}>
-                  {course.title}
-                </h3>
-
-                <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, marginBottom: '16px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                  {course.description}
-                </p>
-
-                <div style={{ marginTop: 'auto', borderTop: '1px solid #f1f5f9', paddingTop: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#e0e7ff', color: '#4338ca', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
-                      {course.instructor.charAt(0)}
+                {/* Content Body */}
+                <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.85rem' }}>
+                      <Star size={16} color="#f59e0b" fill="#f59e0b" />
+                      <span style={{ fontWeight: 700, color: '#0f172a' }}>
+                        {course.average_rating ? Number(course.average_rating).toFixed(1) : '5.0'}
+                      </span>
+                      <span style={{ color: '#94a3b8' }}>({course.reviews_count || 1})</span>
                     </div>
-                    <span style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 500 }}>
-                      {course.instructor}
-                    </span>
+
+                    <div style={{ fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <BookOpen size={14} />
+                      <span>{course.lessons_count || 4} bài học</span>
+                    </div>
                   </div>
 
-                  <div>
-                    {course.price === 0 ? (
-                      <span className="price-tag free">Miễn phí</span>
-                    ) : (
-                      <span className="price-tag">${Number(course.price).toFixed(2)}</span>
-                    )}
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.4, marginBottom: '8px' }}>
+                    {course.title}
+                  </h3>
+
+                  <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, marginBottom: '16px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {course.description}
+                  </p>
+
+                  <div style={{ marginTop: 'auto', borderTop: '1px solid #f1f5f9', paddingTop: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#e0e7ff', color: '#4338ca', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
+                        {course.instructor.charAt(0)}
+                      </div>
+                      <span style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 500 }}>
+                        {course.instructor}
+                      </span>
+                    </div>
+
+                    <div>
+                      {course.price === 0 ? (
+                        <span className="price-tag free">Miễn phí</span>
+                      ) : (
+                        <span className="price-tag">${Number(course.price).toFixed(2)}</span>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {(() => {
-                  const isOwner = Boolean(
-                    user && (
-                      course.isInstructorOwner ||
-                      (course.instructor_id != null && Number(course.instructor_id) === Number(user.id)) ||
-                      (user.name && (
-                        (course.instructor && course.instructor.trim().toLowerCase() === user.name.trim().toLowerCase()) ||
-                        (course.instructor_name && course.instructor_name.trim().toLowerCase() === user.name.trim().toLowerCase())
-                      ))
-                    )
-                  );
+                  {(() => {
+                    const isOwner = Boolean(
+                      user && (
+                        course.isInstructorOwner ||
+                        (course.instructor_id != null && Number(course.instructor_id) === Number(user.id)) ||
+                        (user.name && (
+                          (course.instructor && course.instructor.trim().toLowerCase() === user.name.trim().toLowerCase()) ||
+                          (course.instructor_name && course.instructor_name.trim().toLowerCase() === user.name.trim().toLowerCase())
+                        ))
+                      )
+                    );
 
-                  if (isOwner) {
+                    if (isOwner) {
+                      return (
+                        <Link
+                          to={`/learn/${course.id}`}
+                          className="btn btn-primary"
+                          style={{
+                            marginTop: '14px',
+                            width: '100%',
+                            justifyContent: 'center',
+                            textDecoration: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
+                        >
+                          <PlayCircle size={16} /> Vào xem bài giảng
+                        </Link>
+                      );
+                    }
+
                     return (
                       <Link
-                        to={`/learn/${course.id}`}
+                        to={`/courses/${course.id}`}
                         className="btn btn-primary"
-                        style={{
-                          marginTop: '14px',
-                          width: '100%',
-                          justifyContent: 'center',
-                          textDecoration: 'none',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px'
-                        }}
+                        style={{ marginTop: '14px', width: '100%', justifyContent: 'center', textDecoration: 'none' }}
                       >
-                        <PlayCircle size={16} /> Vào xem bài giảng
+                        Xem chi tiết & Đăng ký
                       </Link>
                     );
-                  }
+                  })()}
+                </div>
+              </div>
+            ))}
+          </div>
 
-                  return (
-                    <Link
-                      to={`/courses/${course.id}`}
-                      className="btn btn-primary"
-                      style={{ marginTop: '14px', width: '100%', justifyContent: 'center', textDecoration: 'none' }}
-                    >
-                      Xem chi tiết & Đăng ký
-                    </Link>
-                  );
-                })()}
+          {/* Pagination Bar */}
+          {totalPages > 1 && (
+            <div className="pagination-container">
+              <div className="pagination-info">
+                Hiển thị <strong>{startIndex + 1} - {endIndex}</strong> trên tổng số <strong>{totalCourses}</strong> khóa học (Trang {currentPage} / {totalPages})
+              </div>
+              <div className="pagination-controls">
+                <button
+                  type="button"
+                  className="pagination-btn"
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  title="Trang trước"
+                >
+                  <ChevronLeft size={16} /> Trước
+                </button>
+
+                {renderPaginationButtons()}
+
+                <button
+                  type="button"
+                  className="pagination-btn"
+                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  title="Trang sau"
+                >
+                  Sau <ChevronRight size={16} />
+                </button>
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );
