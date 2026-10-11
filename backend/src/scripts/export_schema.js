@@ -60,7 +60,7 @@ async function exportSql() {
 
   sql += '-- 6. Enrollments\n';
   sql += 'INSERT INTO `enrollments` (`user_id`, `course_id`, `status`) VALUES\n';
-  sql += enrollments.map(e => `(${e.user_id}, ${e.course_id}, ${escapeStr(e.status)})`).join(',\n') + ';\n\n';
+  sql += enrollments.map(e => `(${e.user_id}, ${e.course_id}, ${escapeStr(e.status)})`).join(',\n') + '\nON DUPLICATE KEY UPDATE status=VALUES(status);\n\n';
 
   if (reviews.length > 0) {
     sql += '-- 7. Reviews\n';
@@ -75,6 +75,10 @@ async function exportSql() {
   }
 
   fs.writeFileSync(schemaPath, sql);
+  const backendSchemaPath = path.join(__dirname, '../../backend/schema.sql');
+  if (fs.existsSync(path.dirname(backendSchemaPath))) {
+    fs.writeFileSync(backendSchemaPath, sql);
+  }
   console.log(`Successfully updated ${schemaPath} with complete new database contents!`);
   console.log(`Stats exported: ${users.length} users, ${courses.length} courses, ${lessons.length} lessons, ${assignments.length} assignments, ${enrollments.length} enrollments`);
   process.exit(0);
