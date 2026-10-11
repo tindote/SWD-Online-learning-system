@@ -156,6 +156,10 @@ export const Header: React.FC = () => {
                 <Compass size={17} />
                 <span>Khám phá khóa học</span>
               </NavLink>
+              <NavLink to="/individual/course-crud" className={({ isActive }) => `header-nav-item ${isActive ? 'active' : ''}`}>
+                <GraduationCap size={17} />
+                <span>Course CRUD (Task 3)</span>
+              </NavLink>
             </div>
           )}
 
@@ -176,12 +180,22 @@ export const Header: React.FC = () => {
                 <CheckCircle size={17} />
                 <span>Bài tập & Nộp bài</span>
               </NavLink>
+
+              <NavLink to="/individual/course-crud" className={({ isActive }) => `header-nav-item ${isActive ? 'active' : ''}`}>
+                <GraduationCap size={17} />
+                <span>Course CRUD (Task 3)</span>
+              </NavLink>
             </div>
           )}
 
           {/* 3. INSTRUCTOR NAVIGATION */}
           {isAuthenticated && role === 'instructor' && (
             <div className="nav-link-group">
+              <NavLink to="/individual/course-crud" className={({ isActive }) => `header-nav-item ${isActive ? 'active' : ''}`}>
+                <GraduationCap size={17} />
+                <span>Course CRUD (Task 3)</span>
+              </NavLink>
+
               <NavLink to="/instructor/courses" className={({ isActive }) => `header-nav-item ${isActive ? 'active' : ''}`}>
                 <BookOpen size={17} />
                 <span>Khóa học tôi dạy</span>
@@ -241,6 +255,11 @@ export const Header: React.FC = () => {
           {/* 4. ADMIN NAVIGATION */}
           {isAuthenticated && role === 'admin' && (
             <div className="nav-link-group">
+              <NavLink to="/individual/course-crud" className={({ isActive }) => `header-nav-item ${isActive ? 'active' : ''}`}>
+                <GraduationCap size={17} />
+                <span>Course CRUD (Task 3)</span>
+              </NavLink>
+
               {/* Dropdown: Đào tạo & Nội dung */}
               <div className="nav-dropdown-wrapper">
                 <button

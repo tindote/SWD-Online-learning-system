@@ -1,0 +1,270 @@
+@startuml member3-course-class-diagram
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam defaultFontSize 11
+skinparam roundCorner 6
+
+skinparam package {
+    BackgroundColor #F8FAFC
+    BorderColor #64748B
+    FontColor #0F172A
+    FontStyle bold
+    FontSize 13
+}
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor #3B82F6
+    HeaderBackgroundColor #EFF6FF
+    FontColor #0F172A
+    FontSize 11
+    AttributeFontColor #334155
+    AttributeFontSize 10
+    MethodFontColor #1E293B
+    MethodFontSize 10
+    ArrowColor #475569
+    ArrowFontSize 10
+}
+
+' ========================================================
+' PACKAGE 1: FRONTEND — PRESENTATION & CLIENT SERVICE
+' ========================================================
+package "Frontend — Presentation & Client Service" as Pkg_Frontend #F0FDF4 {
+
+    interface "Course" as Interface_Course <<interface>> {
+        + id: number
+        + title: string
+        + description: string
+        + instructor: string
+        + instructor_id?: number | null
+        + instructor_name?: string | null
+        + instructor_avatar?: string | null
+        + instructor_bio?: string | null
+        + price: number | string
+        + category: string
+        + thumbnail?: string | null
+        + status?: 'draft' | 'published' | 'archived' | string
+        + lessons_count?: number | string
+        + enrollments_count?: number | string
+        + average_rating?: number | string
+        + reviews_count?: number | string
+        + created_at?: string
+        + updated_at?: string
+        + isInstructorOwner?: boolean
+    }
+
+    interface "CourseFormData" as Interface_CourseFormData <<interface>> {
+        + title: string
+        + description: string
+        + instructor: string
+        + instructor_id?: number | null
+        + price: number | string
+        + category: string
+        + thumbnail?: string
+        + status?: string
+    }
+
+    interface "CourseFilterParams" as Interface_CourseFilterParams <<interface>> {
+        + search?: string
+        + category?: string
+        + isFree?: boolean | string
+        + status?: string
+        + allStatus?: boolean | string
+        + instructor_id?: number | string
+        + sortBy?: 'newest' | 'price_asc' | 'price_desc' | 'rating' | 'title'
+    }
+
+    class "CourseCRUDAssignmentPage" as View_CoursePage <<React.FC>> {
+        - courses: Course[]
+        - categories: Category[]
+        - isLoading: boolean
+        - error: string | null
+        - searchTerm: string
+        - selectedCategory: string
+        - selectedStatus: string
+        - priceFilter: 'all' | 'free' | 'paid'
+        - viewMode: 'table' | 'grid'
+        - currentPage: number
+        - toast: ToastState | null
+        + fetchCourses(): Promise<void>
+        + handleFormSubmit(formData: CourseFormData): Promise<void>
+        + handleConfirmDelete(): Promise<void>
+        + handleResetFilters(): void
+    }
+
+    class "IndividualCourseHeader" as Component_Header <<React.FC>> {
+        - props: IndividualCourseHeaderProps
+        + render(): JSX.Element
+    }
+
+    class "IndividualCourseTable" as Component_Table <<React.FC>> {
+        - props: IndividualCourseTableProps
+        + checkCanModify(course: Course): boolean
+        + render(): JSX.Element
+    }
+
+    class "IndividualCourseCard" as Component_Card <<React.FC>> {
+        - props: IndividualCourseCardProps
+        + render(): JSX.Element
+    }
+
+    class "IndividualCourseFormModal" as Component_FormModal <<React.FC>> {
+        - formData: CourseFormData
+        - errors: Record<string, string>
+        + validate(): boolean
+        + handleSubmit(e: FormEvent): Promise<void>
+        + render(): JSX.Element
+    }
+
+    class "IndividualCourseDetailModal" as Component_DetailModal <<React.FC>> {
+        - course: Course | null
+        - isLoading: boolean
+        + fetchDetails(): Promise<void>
+        + render(): JSX.Element
+    }
+
+    class "IndividualCourseDeleteModal" as Component_DeleteModal <<React.FC>> {
+        - props: IndividualCourseDeleteModalProps
+        + render(): JSX.Element
+    }
+
+    class "courseApi" as Service_CourseApi <<Service Object>> {
+        + getCourses(params?: CourseFilterParams): Promise<Course[]>
+        + getMyInstructorCourses(): Promise<Course[]>
+        + getCourseById(id: number): Promise<Course>
+        + createCourse(data: CourseFormData): Promise<Course>
+        + updateCourse(id: number, data: CourseFormData): Promise<Course>
+        + deleteCourse(id: number): Promise<void>
+    }
+
+    class "apiClient" as Service_ApiClient <<AxiosInstance>> {
+        + get(url, config): Promise<AxiosResponse>
+        + post(url, data, config): Promise<AxiosResponse>
+        + put(url, data, config): Promise<AxiosResponse>
+        + delete(url, config): Promise<AxiosResponse>
+    }
+
+    ' Frontend relationships
+    View_CoursePage *-- Component_Header
+    View_CoursePage *-- Component_Table
+    View_CoursePage *-- Component_Card
+    View_CoursePage *-- Component_FormModal
+    View_CoursePage *-- Component_DetailModal
+    View_CoursePage *-- Component_DeleteModal
+
+    Component_Table ..> Interface_Course : displays
+    Component_Card ..> Interface_Course : displays
+    Component_FormModal ..> Interface_CourseFormData : collects
+    Component_DetailModal ..> Interface_Course : details
+
+    View_CoursePage ..> Service_CourseApi : invokes
+    Service_CourseApi ..> Service_ApiClient : sends HTTP requests
+    Service_CourseApi ..> Interface_Course : returns
+    Service_CourseApi ..> Interface_CourseFormData : receives
+    Service_CourseApi ..> Interface_CourseFilterParams : passes
+}
+
+' ========================================================
+' PACKAGE 2: BACKEND — EXPRESS.JS API & BUSINESS LOGIC
+' ========================================================
+package "Backend — Express.js API & Business Logic" as Pkg_BackendAPI #EFF6FF {
+
+    class "courseRoutes" as Router_Course <<Express.Router>> {
+        + GET /api/courses
+        + GET /api/courses/instructor/my-courses
+        + GET /api/courses/:id
+        + POST /api/courses
+        + PUT /api/courses/:id
+        + DELETE /api/courses/:id
+    }
+
+    class "authMiddleware" as Middleware_Auth <<module>> {
+        + authenticate(req, res, next): void
+        + authorize(roles: string[]): Function
+        + optionalAuth(req, res, next): void
+    }
+
+    class "courseController" as Controller_Course <<module>> {
+        + validateCourseInput(data: object): string[]
+        + getCourses(req, res): Promise<Response>
+        + getCourseById(req, res): Promise<Response>
+        + getMyInstructorCourses(req, res): Promise<Response>
+        + createCourse(req, res): Promise<Response>
+        + updateCourse(req, res): Promise<Response>
+        + deleteCourse(req, res): Promise<Response>
+    }
+
+    ' Backend API relationships
+    Router_Course ..> Middleware_Auth : guards with
+    Router_Course ..> Controller_Course : dispatches to
+    Service_ApiClient ..> Router_Course : HTTP REST calls (JSON/JWT)
+}
+
+' ========================================================
+' PACKAGE 3: BACKEND — DATA ACCESS & PERSISTENCE
+' ========================================================
+package "Backend — Data Access & Persistence" as Pkg_BackendData #F8FAFC {
+
+    class "CourseModel" as Model_Course <<Data Access Object>> {
+        + getAll(options?: CourseFilterOptions): Promise<CourseRow[]>
+        + getById(id: number): Promise<CourseRow | null>
+        + create(courseData: CourseData): Promise<CourseRow>
+        + update(id: number, courseData: CourseData): Promise<CourseRow | null>
+        + delete(id: number): Promise<boolean>
+    }
+
+    class "db (MySQL Pool)" as DB_Pool <<mysql2/promise Pool>> {
+        + query(sql: string, params?: any[]): Promise<[RowDataPacket[], FieldPacket[]]>
+    }
+
+    entity "courses" as Entity_CourseTable <<MySQL Table>> {
+        * id : INT AUTO_INCREMENT <<PK>>
+        --
+        * title : VARCHAR(255)
+        * description : TEXT
+        * instructor : VARCHAR(255)
+        instructor_id : INT <<FK -> users.id>>
+        * price : DECIMAL(10,2) [DEFAULT 0.00]
+        * category : VARCHAR(100)
+        thumbnail : VARCHAR(500)
+        * status : VARCHAR(20) [DEFAULT 'published']
+        * created_at : TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
+        * updated_at : TIMESTAMP [ON UPDATE CURRENT_TIMESTAMP]
+    }
+
+    entity "users" as Entity_UsersTable <<MySQL Table>> {
+        * id : INT AUTO_INCREMENT <<PK>>
+        --
+        * name : VARCHAR(255)
+        * email : VARCHAR(255) <<UNIQUE>>
+        * role : VARCHAR(50)
+    }
+
+    entity "lessons" as Entity_LessonsTable <<MySQL Table>> {
+        * id : INT AUTO_INCREMENT <<PK>>
+        --
+        * course_id : INT <<FK -> courses.id>>
+        * title : VARCHAR(255)
+        lesson_order : INT
+    }
+
+    entity "enrollments" as Entity_EnrollmentsTable <<MySQL Table>> {
+        * id : INT AUTO_INCREMENT <<PK>>
+        --
+        * user_id : INT <<FK -> users.id>>
+        * course_id : INT <<FK -> courses.id>>
+        * status : VARCHAR(50)
+    }
+
+    ' Backend Persistence relationships
+    Controller_Course ..> Model_Course : calls CRUD operations
+    Model_Course ..> DB_Pool : executes parameterized SQL
+    DB_Pool ..> Entity_CourseTable : reads / writes
+    Entity_CourseTable "0..*" --> "0..1" Entity_UsersTable : instructor_id FK
+    Entity_CourseTable "1" <-- "0..*" Entity_LessonsTable : course_id CASCADE FK
+    Entity_CourseTable "1" <-- "0..*" Entity_EnrollmentsTable : course_id CASCADE FK
+}
+
+@enduml

@@ -1,0 +1,111 @@
+@startuml member3-course-use-case
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam defaultFontSize 12
+skinparam roundCorner 8
+
+skinparam actor {
+    BackgroundColor #F8FAFC
+    BorderColor #334155
+    FontColor #0F172A
+    FontSize 13
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #2563EB
+    BorderThickness 1.5
+    FontColor #0F172A
+    FontSize 12
+    ArrowColor #475569
+    ArrowFontSize 11
+}
+
+skinparam package {
+    BackgroundColor #F8FAFC
+    BorderColor #94A3B8
+    FontColor #1E293B
+    FontStyle bold
+    FontSize 14
+}
+
+' ========================================================
+' ACTORS DEFINITION
+' ========================================================
+actor "Guest / Visitor" as Guest
+actor "Instructor" as Instructor
+actor "System Admin" as Admin
+
+' Hierarchy / Generalization between actors
+Instructor -up-|> Guest : <<inherits>>
+Admin -up-|> Instructor : <<inherits>>
+
+' ========================================================
+' SYSTEM BOUNDARY
+' ========================================================
+rectangle "Online Learning Platform — Course Management Subsystem (Member 3)" {
+
+    ' Public / Guest Use Cases
+    usecase "UC01: View Course Catalog" as UC_ViewList
+    usecase "UC02: Search & Filter Courses" as UC_SearchFilter
+    usecase "UC03: View Course Details" as UC_ViewDetail
+
+    ' Management Use Cases
+    usecase "UC04: View Owned Courses" as UC_ViewOwn
+    usecase "UC05: Create New Course" as UC_Create
+    usecase "UC06: Update Course" as UC_Update
+    usecase "UC07: Delete Course" as UC_Delete
+
+    ' Supporting / Included Use Cases
+    usecase "Validate Course Input" as UC_Validate
+    usecase "Authenticate & Verify Ownership" as UC_AuthVerify
+}
+
+' ========================================================
+' ACTOR ASSOCIATIONS
+' ========================================================
+
+' Guest associations
+Guest --> UC_ViewList
+Guest --> UC_SearchFilter
+Guest --> UC_ViewDetail
+
+' Extend / Include relationships for reading
+UC_SearchFilter .> UC_ViewList : <<extend>>
+UC_ViewDetail .> UC_ViewList : <<extend>>
+
+' Instructor associations
+Instructor --> UC_ViewOwn
+Instructor --> UC_Create
+Instructor --> UC_Update
+Instructor --> UC_Delete
+
+' Admin associations
+Admin --> UC_Update : "Manage All Courses"
+Admin --> UC_Delete : "Manage All Courses"
+
+' Business Rule Inclusions
+UC_Create .> UC_Validate : <<include>>
+UC_Update .> UC_Validate : <<include>>
+UC_Create .> UC_AuthVerify : <<include>>
+UC_Update .> UC_AuthVerify : <<include>>
+UC_Delete .> UC_AuthVerify : <<include>>
+
+note right of UC_AuthVerify
+  <b>Ownership Policy:</b>
+  • Instructors can only edit/delete courses they own.
+  • System Admins possess override authority across all courses.
+end note
+
+note bottom of UC_Validate
+  <b>Validation Rules:</b>
+  • Title >= 5 characters (mandatory)
+  • Description >= 15 characters (mandatory)
+  • Category must be valid/non-empty
+  • Price >= 0.00 (numeric)
+end note
+
+@enduml

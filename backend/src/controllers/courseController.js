@@ -29,9 +29,11 @@ const getCourses = async (req, res) => {
   try {
     const { search, category, isFree, status, allStatus, instructor_id, sortBy } = req.query;
     
-    // Only admins can view all statuses (draft, archived)
+    // Admins can view all statuses. Instructors can view all statuses for their own courses when filtering.
     const isAdmin = req.user && req.user.role === 'admin';
-    const canViewAllStatus = isAdmin && (allStatus === 'true' || allStatus === true);
+    const isInstructor = req.user && req.user.role === 'instructor';
+    const isOwnerFiltering = isInstructor && instructor_id && Number(instructor_id) === Number(req.user.id);
+    const canViewAllStatus = (isAdmin || isOwnerFiltering) && (allStatus === 'true' || allStatus === true);
 
     const courses = await CourseModel.getAll({
       search,
@@ -238,7 +240,7 @@ const updateCourse = async (req, res) => {
     }
 
     // Ownership check: If role is instructor, cannot edit another instructor's course
-    if (req.user.role === 'instructor' && existingCourse.instructor_id !== req.user.id) {
+    if (req.user.role === 'instructor' && Number(existingCourse.instructor_id) !== Number(req.user.id)) {
       return res.status(403).json({
         success: false,
         message: 'Bạn không có quyền chỉnh sửa khóa học của giảng viên khác'
@@ -295,7 +297,7 @@ const deleteCourse = async (req, res) => {
     }
 
     // Ownership check
-    if (req.user.role === 'instructor' && existingCourse.instructor_id !== req.user.id) {
+    if (req.user.role === 'instructor' && Number(existingCourse.instructor_id) !== Number(req.user.id)) {
       return res.status(403).json({
         success: false,
         message: 'Bạn không có quyền xóa khóa học của giảng viên khác'
