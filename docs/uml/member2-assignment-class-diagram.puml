@@ -1,0 +1,278 @@
+@startuml member2-assignment-class-diagram
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam shadowing true
+skinparam roundcorner 8
+skinparam classAttributeIconSize 0
+
+skinparam package {
+    BackgroundColor #F8FAFC
+    BorderColor #94A3B8
+    FontName "Inter", "Segoe UI", sans-serif
+    FontSize 13
+    FontStyle bold
+}
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor #6366F1
+    HeaderBackgroundColor #EEF2FF
+    FontName "Inter", "Segoe UI", sans-serif
+    FontSize 12
+    ArrowColor #4F46E5
+}
+
+skinparam interface {
+    BackgroundColor #FFFFFF
+    BorderColor #0284C7
+    HeaderBackgroundColor #E0F2FE
+    FontName "Inter", "Segoe UI", sans-serif
+    FontSize 12
+}
+
+' ========================================================
+' 1. FRONTEND PRESENTATION & LOGIC LAYER
+' ========================================================
+package "Frontend — Presentation & Client Architecture" {
+
+    interface "Assignment" as IAssignment <<TypeScript Interface>> {
+        + id: number
+        + course_id: number
+        + title: string
+        + description: string
+        + due_date: string | null
+        + course_title?: string
+        + course_instructor?: string
+        + instructor_id?: number
+        + submissions_count?: number
+        + created_at?: string
+        + updated_at?: string
+    }
+
+    interface "AssignmentFormData" as IAssignmentFormData <<TypeScript Interface>> {
+        + course_id: number | string
+        + title: string
+        + description: string
+        + due_date: string
+    }
+
+    class "AssignmentCRUDAssignmentPage" as PageComponent <<React Component (Page)>> {
+        - assignments: Assignment[]
+        - isLoading: boolean
+        - isRefreshing: boolean
+        - error: string | null
+        - isFormOpen: boolean
+        - assignmentToEdit: Assignment | null
+        - isSubmitting: boolean
+        - isDeleteOpen: boolean
+        - assignmentToDelete: Assignment | null
+        - isDeleting: boolean
+        - assignmentToView: Assignment | null
+        - toast: ToastState | null
+        --
+        + fetchAssignments(isSilent?: boolean): Promise<void>
+        + handleOpenCreate(): void
+        + handleOpenEdit(assignment: Assignment): void
+        + handleCloseForm(): void
+        + handleViewAssignment(assignment: Assignment): Promise<void>
+        + handleCloseView(): void
+        + handleOpenDelete(assignment: Assignment): void
+        + handleCloseDelete(): void
+        + handleFormSubmit(formData: AssignmentFormData): Promise<void>
+        + handleConfirmDelete(): Promise<void>
+        + showToast(message: string, type: string): void
+        + render(): JSX.Element
+    }
+
+    class "IndividualAssignmentHeader" as HeaderComp <<React Component>> {
+        + totalCount: number
+        + isRefreshing: boolean
+        + canManage: boolean
+        --
+        + onRefresh(): void
+        + onOpenCreate(): void
+        + render(): JSX.Element
+    }
+
+    class "IndividualAssignmentTable" as TableComp <<React Component>> {
+        - searchTerm: string
+        - sortBy: "id" | "title" | "due_date"
+        - sortOrder: "asc" | "desc"
+        + assignments: Assignment[]
+        + canManage: boolean
+        + currentUserId?: number
+        + userRole?: string
+        --
+        + toggleSort(field: string): void
+        + formatDate(dateStr?: string | null): string
+        + canModifyAssignment(item: Assignment): boolean
+        + onView(assignment: Assignment): void
+        + onEdit(assignment: Assignment): void
+        + onDelete(assignment: Assignment): void
+        + render(): JSX.Element
+    }
+
+    class "IndividualAssignmentFormModal" as FormModalComp <<React Component>> {
+        - courses: Course[]
+        - isLoadingCourses: boolean
+        - formData: AssignmentFormData
+        - errors: Record<string, string>
+        - serverError: string | null
+        - touched: Record<string, boolean>
+        + assignmentToEdit?: Assignment | null
+        + isOpen: boolean
+        + isSubmitting: boolean
+        --
+        + validate(data: AssignmentFormData): Record<string, string>
+        + handleChange(e: ChangeEvent): void
+        + handleBlur(field: string): void
+        + handleSubmit(e: FormEvent): Promise<void>
+        + onClose(): void
+        + render(): JSX.Element
+    }
+
+    class "IndividualAssignmentDeleteModal" as DeleteModalComp <<React Component>> {
+        + assignment: Assignment | null
+        + isOpen: boolean
+        + isDeleting: boolean
+        --
+        + onConfirm(): Promise<void>
+        + onCancel(): void
+        + render(): JSX.Element
+    }
+
+    class "IndividualAssignmentDetailModal" as DetailModalComp <<React Component>> {
+        + assignment: Assignment | null
+        --
+        + formatDate(dateStr?: string | null): string
+        + onClose(): void
+        + render(): JSX.Element
+    }
+
+    class "assignmentApi" as AssignmentApi <<API Client Service>> {
+        - apiClient: AxiosInstance
+        --
+        + getAssignments(params?: Object): Promise<Assignment[]>
+        + getAssignmentById(id: number): Promise<Assignment>
+        + createAssignment(data: AssignmentFormData): Promise<Assignment>
+        + updateAssignment(id: number, data: AssignmentFormData): Promise<Assignment>
+        + deleteAssignment(id: number): Promise<void>
+    }
+
+    class "courseApi" as CourseApi <<API Client Service>> {
+        - apiClient: AxiosInstance
+        --
+        + getCourses(): Promise<Course[]>
+        + getMyInstructorCourses(): Promise<Course[]>
+    }
+}
+
+' ========================================================
+' 2. BACKEND API & CONTROLLER LAYER
+' ========================================================
+package "Backend — Express.js REST API & Controller Layer" {
+
+    class "assignmentRoutes" as AssignmentRoutes <<Express Router Module>> {
+        + GET /api/assignments [Auth]
+        + GET /api/assignments/:id [Auth]
+        + POST /api/assignments [Auth: Admin, Instructor]
+        + PUT /api/assignments/:id [Auth: Admin, Instructor]
+        + DELETE /api/assignments/:id [Auth: Admin, Instructor]
+    }
+
+    class "authMiddleware" as AuthMiddleware <<Middleware Module>> {
+        + authenticate(req: Request, res: Response, next: NextFunction): void
+        + authorize(roles: string[]): MiddlewareFunction
+    }
+
+    class "assignmentController" as AssignmentController <<Controller Module>> {
+        - validateAssignmentInput(data: Object): Promise<string[]>
+        --
+        + getAssignments(req: Request, res: Response): Promise<Response>
+        + getAssignmentById(req: Request, res: Response): Promise<Response>
+        + createAssignment(req: Request, res: Response): Promise<Response>
+        + updateAssignment(req: Request, res: Response): Promise<Response>
+        + deleteAssignment(req: Request, res: Response): Promise<Response>
+    }
+}
+
+' ========================================================
+' 3. PERSISTENCE & DATA ACCESS LAYER
+' ========================================================
+package "Backend — Persistence & Database Layer" {
+
+    class "AssignmentModel" as AssignmentModel <<Data Access Object (DAO)>> {
+        - db: MySQLConnectionPool
+        --
+        + getAll(filter?: Object): Promise<AssignmentRecord[]>
+        + getById(id: number | string): Promise<AssignmentRecord | null>
+        + create(data: Object): Promise<AssignmentRecord>
+        + update(id: number | string, data: Object): Promise<AssignmentRecord | null>
+        + delete(id: number | string): Promise<boolean>
+    }
+
+    class "CourseModel" as CourseModel <<Data Access Object (DAO)>> {
+        - db: MySQLConnectionPool
+        --
+        + getById(id: number | string): Promise<CourseRecord | null>
+    }
+
+    class "assignments" as AssignmentEntity <<Database Table (MySQL)>> {
+        + id: INT [PK, AUTO_INCREMENT]
+        + course_id: INT [FK -> courses.id]
+        + title: VARCHAR(255) [NOT NULL]
+        + description: TEXT [NULLABLE]
+        + due_date: DATETIME [NULLABLE]
+        + created_at: TIMESTAMP
+        + updated_at: TIMESTAMP
+    }
+
+    class "courses" as CourseEntity <<Database Table (MySQL)>> {
+        + id: INT [PK, AUTO_INCREMENT]
+        + title: VARCHAR(255)
+        + instructor_id: INT [FK -> users.id]
+    }
+}
+
+' ========================================================
+' RELATIONSHIPS & DEPENDENCIES
+' ========================================================
+
+' Page assembles components
+PageComponent *-- HeaderComp : renders
+PageComponent *-- TableComp : renders
+PageComponent *-- FormModalComp : renders
+PageComponent *-- DeleteModalComp : renders
+PageComponent *-- DetailModalComp : renders
+
+' FormModal uses courseApi to populate course selection
+FormModalComp ..> CourseApi : loads courses
+
+' Components manipulate Data Interfaces
+PageComponent ..> IAssignment : manages
+TableComp ..> IAssignment : displays
+FormModalComp ..> IAssignmentFormData : edits
+DeleteModalComp ..> IAssignment : references
+DetailModalComp ..> IAssignment : inspects
+
+' Page uses Service
+PageComponent ..> AssignmentApi : invokes CRUD
+
+' API Service calls Router via Axios HTTP
+AssignmentApi ..> AssignmentRoutes : HTTP / JSON (Axios)
+
+' Routes protected by Middleware and handled by Controller
+AssignmentRoutes ..> AuthMiddleware : role authorization
+AssignmentRoutes ..> AssignmentController : routes requests
+
+' Controller checks Course ownership and executes DAO
+AssignmentController ..> CourseModel : verifies course & owner
+AssignmentController ..> AssignmentModel : executes assignment CRUD
+
+' DAOs map to MySQL Tables
+AssignmentModel ..> AssignmentEntity : SQL Parameterized Query
+CourseModel ..> CourseEntity : SQL Parameterized Query
+AssignmentEntity }o--|| CourseEntity : fk_assignments_course (course_id)
+
+@enduml

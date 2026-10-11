@@ -36,6 +36,9 @@ import { SubmissionsPage } from './pages/SubmissionsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { ChangePasswordPage } from './pages/ChangePasswordPage';
 
+// Individual Member Assignment Pages
+import { AssignmentCRUDAssignmentPage } from './pages/AssignmentCRUDAssignmentPage';
+
 import './index.css';
 
 export function App() {
@@ -127,6 +130,11 @@ export function App() {
           >
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/change-password" element={<ChangePasswordPage />} />
+          </Route>
+
+          {/* Individual Member Assignments */}
+          <Route element={<Layout />}>
+            <Route path="/individual/assignment-crud" element={<AssignmentCRUDAssignmentPage />} />
           </Route>
 
           {/* 7. Redirect Shortcuts */}

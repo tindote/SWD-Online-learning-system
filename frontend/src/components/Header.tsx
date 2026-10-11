@@ -215,6 +215,13 @@ export const Header: React.FC = () => {
                         <div className="dropdown-desc">Tạo và quản lý bài tập của các khóa học</div>
                       </div>
                     </Link>
+                    <Link to="/individual/assignment-crud" className={`dropdown-item ${isPathActive('/individual/assignment-crud') ? 'active' : ''}`}>
+                      <ClipboardList size={16} />
+                      <div>
+                        <div className="dropdown-title">Assignment Management (CRUD)</div>
+                        <div className="dropdown-desc">Quản lý bài tập khóa học chuyên biệt</div>
+                      </div>
+                    </Link>
                     <Link to="/instructor/submissions" className={`dropdown-item ${isPathActive('/instructor/submissions') ? 'active' : ''}`}>
                       <Send size={16} />
                       <div>
@@ -303,6 +310,13 @@ export const Header: React.FC = () => {
                       <div>
                         <div className="dropdown-title">Quản lý bài tập</div>
                         <div className="dropdown-desc">Toàn bộ đề bài tập trên hệ thống</div>
+                      </div>
+                    </Link>
+                    <Link to="/individual/assignment-crud" className={`dropdown-item ${isPathActive('/individual/assignment-crud') ? 'active' : ''}`}>
+                      <ClipboardList size={16} />
+                      <div>
+                        <div className="dropdown-title">Assignment Management (CRUD)</div>
+                        <div className="dropdown-desc">Quản lý bài tập khóa học chuyên biệt</div>
                       </div>
                     </Link>
                     <Link to="/admin/submissions" className={`dropdown-item ${isPathActive('/admin/submissions') ? 'active' : ''}`}>
@@ -553,6 +567,9 @@ export const Header: React.FC = () => {
                   <Link to="/instructor/assignments" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
                     <ClipboardList size={18} /> Giao bài tập
                   </Link>
+                  <Link to="/individual/assignment-crud" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
+                    <ClipboardList size={18} /> Assignment Management
+                  </Link>
                   <Link to="/instructor/submissions" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
                     <Send size={18} /> Chấm bài học viên
                   </Link>
@@ -586,6 +603,9 @@ export const Header: React.FC = () => {
                   <div className="mobile-group-title">Bài tập & Bài nộp</div>
                   <Link to="/admin/assignments" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
                     <ClipboardList size={18} /> Quản lý bài tập
+                  </Link>
+                  <Link to="/individual/assignment-crud" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
+                    <ClipboardList size={18} /> Assignment Management
                   </Link>
                   <Link to="/admin/submissions" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
                     <Send size={18} /> Quản lý bài nộp

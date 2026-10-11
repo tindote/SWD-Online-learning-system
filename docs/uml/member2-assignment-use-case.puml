@@ -1,0 +1,85 @@
+@startuml member2-assignment-use-case
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam shadowing true
+skinparam roundcorner 10
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+skinparam actor {
+    BackgroundColor #EEF2FF
+    BorderColor #4F46E5
+    FontName "Inter", "Segoe UI", sans-serif
+    FontSize 13
+}
+
+skinparam usecase {
+    BackgroundColor #F8FAFC
+    BorderColor #6366F1
+    FontName "Inter", "Segoe UI", sans-serif
+    FontSize 12
+    ArrowColor #4338CA
+    ArrowFontColor #312E81
+}
+
+skinparam rectangle {
+    BackgroundColor #FAFAFA
+    BorderColor #CBD5E1
+    FontName "Inter", "Segoe UI", sans-serif
+    FontSize 14
+    FontStyle bold
+}
+
+left to right direction
+
+actor "Instructor\n(Giảng viên)" as Instructor
+actor "Administrator\n(Quản trị viên)" as Admin
+actor "Student\n(Học viên)" as Student
+
+rectangle "Online Learning System — Assignment Management (Member 2)" {
+    usecase "UC-ASM-01: View Assignment List\n(Xem danh sách bài tập)" as UC_List
+    usecase "UC-ASM-02: View Assignment Details\n(Xem chi tiết bài tập)" as UC_Detail
+    usecase "UC-ASM-03: Create Assignment\n(Giao / Tạo mới bài tập)" as UC_Create
+    usecase "UC-ASM-04: Update Assignment\n(Chỉnh sửa bài tập)" as UC_Update
+    usecase "UC-ASM-05: Delete Assignment\n(Xóa bài tập)" as UC_Delete
+    
+    usecase "Validate Assignment Data & Due Date\n(Kiểm tra dữ liệu & hạn nộp)" as UC_Validate
+    usecase "Check Course Ownership & Permission\n(Kiểm tra quyền sở hữu khóa học)" as UC_Ownership
+    usecase "Authenticate User (JWT Token)\n(Xác thực tài khoản)" as UC_Auth
+}
+
+' Student associations (View only)
+Student --> UC_List
+Student --> UC_Detail
+
+' Instructor associations (Full CRUD on own courses)
+Instructor --> UC_List
+Instructor --> UC_Detail
+Instructor --> UC_Create
+Instructor --> UC_Update
+Instructor --> UC_Delete
+
+' Admin associations (System-wide management)
+Admin --> UC_List
+Admin --> UC_Detail
+Admin --> UC_Create
+Admin --> UC_Update
+Admin --> UC_Delete
+
+' Include relationships
+UC_List ..> UC_Auth : <<include>>
+UC_Detail ..> UC_Auth : <<include>>
+
+UC_Create ..> UC_Auth : <<include>>
+UC_Create ..> UC_Validate : <<include>>
+UC_Create ..> UC_Ownership : <<include>>
+
+UC_Update ..> UC_Auth : <<include>>
+UC_Update ..> UC_Validate : <<include>>
+UC_Update ..> UC_Ownership : <<include>>
+
+UC_Delete ..> UC_Auth : <<include>>
+UC_Delete ..> UC_Ownership : <<include>>
+
+@enduml
