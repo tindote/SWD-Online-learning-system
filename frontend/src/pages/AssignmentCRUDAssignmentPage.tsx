@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Assignment, AssignmentFormData } from '../types/assignment';
 import { assignmentApi } from '../services/assignmentApi';
 import {
-  IndividualAssignmentHeader,
-  IndividualAssignmentTable,
-  IndividualAssignmentFormModal,
-  IndividualAssignmentDeleteModal,
-  IndividualAssignmentDetailModal
+  AssignmentActionBar,
+  AssignmentDataTable,
+  AssignmentDrawerForm,
+  AssignmentDeleteDialog,
+  AssignmentDetailDrawer
 } from '../components/individual-assignment-crud';
 import { useAuth } from '../context/AuthContext';
 import { AlertCircle, CheckCircle2, Info } from 'lucide-react';
@@ -21,17 +21,17 @@ export const AssignmentCRUDAssignmentPage: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Form Modal State (Create / Edit)
+  // Drawer State (Create / Edit)
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
   const [assignmentToEdit, setAssignmentToEdit] = useState<Assignment | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // Delete Modal State
+  // Delete Dialog State
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
   const [assignmentToDelete, setAssignmentToDelete] = useState<Assignment | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  // View Details Modal State
+  // View Details Drawer State
   const [assignmentToView, setAssignmentToView] = useState<Assignment | null>(null);
 
   // Toast State
@@ -71,7 +71,7 @@ export const AssignmentCRUDAssignmentPage: React.FC = () => {
     fetchAssignments();
   }, [fetchAssignments]);
 
-  // Open Create Modal
+  // Open Create Drawer
   const handleOpenCreate = () => {
     if (!canManage) {
       showToast('Chỉ Quản trị viên và Giảng viên mới có quyền tạo bài tập', 'error');
@@ -81,7 +81,7 @@ export const AssignmentCRUDAssignmentPage: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  // Open Edit Modal
+  // Open Edit Drawer
   const handleOpenEdit = (assignment: Assignment) => {
     if (!canManage) {
       showToast('Bạn không có quyền chỉnh sửa bài tập này', 'error');
@@ -91,13 +91,13 @@ export const AssignmentCRUDAssignmentPage: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  // Close Form Modal
+  // Close Form Drawer
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setAssignmentToEdit(null);
   };
 
-  // Open View Details Modal (GET /api/assignments/:id)
+  // Open View Details Drawer (GET /api/assignments/:id)
   const handleViewAssignment = async (item: Assignment) => {
     try {
       const singleData = await assignmentApi.getAssignmentById(item.id);
@@ -107,12 +107,12 @@ export const AssignmentCRUDAssignmentPage: React.FC = () => {
     }
   };
 
-  // Close View Details Modal
+  // Close View Details Drawer
   const handleCloseView = () => {
     setAssignmentToView(null);
   };
 
-  // Open Delete Confirmation Modal
+  // Open Delete Confirmation Dialog
   const handleOpenDelete = (assignment: Assignment) => {
     if (!canManage) {
       showToast('Bạn không có quyền xóa bài tập này', 'error');
@@ -122,7 +122,7 @@ export const AssignmentCRUDAssignmentPage: React.FC = () => {
     setIsDeleteOpen(true);
   };
 
-  // Close Delete Confirmation Modal
+  // Close Delete Confirmation Dialog
   const handleCloseDelete = () => {
     if (isDeleting) return;
     setIsDeleteOpen(false);
@@ -194,8 +194,8 @@ export const AssignmentCRUDAssignmentPage: React.FC = () => {
         </div>
       )}
 
-      {/* Clean Page Header */}
-      <IndividualAssignmentHeader
+      {/* Action Bar Header */}
+      <AssignmentActionBar
         totalCount={assignments.length}
         onRefresh={() => fetchAssignments(false)}
         onOpenCreate={handleOpenCreate}
@@ -238,9 +238,9 @@ export const AssignmentCRUDAssignmentPage: React.FC = () => {
         </div>
       )}
 
-      {/* Assignment Table & Actions */}
+      {/* Assignment Data Table */}
       {!isLoading && !error && (
-        <IndividualAssignmentTable
+        <AssignmentDataTable
           assignments={assignments}
           onView={handleViewAssignment}
           onEdit={handleOpenEdit}
@@ -251,8 +251,8 @@ export const AssignmentCRUDAssignmentPage: React.FC = () => {
         />
       )}
 
-      {/* Modal: Create & Edit Assignment */}
-      <IndividualAssignmentFormModal
+      {/* Slide-over Drawer: Create & Edit Assignment */}
+      <AssignmentDrawerForm
         assignmentToEdit={assignmentToEdit}
         isOpen={isFormOpen}
         isSubmitting={isSubmitting}
@@ -260,8 +260,8 @@ export const AssignmentCRUDAssignmentPage: React.FC = () => {
         onClose={handleCloseForm}
       />
 
-      {/* Modal: Delete Confirmation */}
-      <IndividualAssignmentDeleteModal
+      {/* Confirmation Dialog: Delete Assignment */}
+      <AssignmentDeleteDialog
         assignment={assignmentToDelete}
         isOpen={isDeleteOpen}
         isDeleting={isDeleting}
@@ -269,8 +269,8 @@ export const AssignmentCRUDAssignmentPage: React.FC = () => {
         onCancel={handleCloseDelete}
       />
 
-      {/* Modal: View Assignment Details */}
-      <IndividualAssignmentDetailModal
+      {/* Slide-over Drawer: View Assignment Details */}
+      <AssignmentDetailDrawer
         assignment={assignmentToView}
         onClose={handleCloseView}
       />

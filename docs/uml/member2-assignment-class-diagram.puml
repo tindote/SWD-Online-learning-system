@@ -7,8 +7,8 @@ skinparam roundcorner 8
 skinparam classAttributeIconSize 0
 
 skinparam package {
-    BackgroundColor #F8FAFC
-    BorderColor #94A3B8
+    BackgroundColor #F0FDFA
+    BorderColor #99F6E4
     FontName "Inter", "Segoe UI", sans-serif
     FontSize 13
     FontStyle bold
@@ -16,11 +16,11 @@ skinparam package {
 
 skinparam class {
     BackgroundColor #FFFFFF
-    BorderColor #6366F1
-    HeaderBackgroundColor #EEF2FF
+    BorderColor #0D9488
+    HeaderBackgroundColor #CCFBF1
     FontName "Inter", "Segoe UI", sans-serif
     FontSize 12
-    ArrowColor #4F46E5
+    ArrowColor #0F766E
 }
 
 skinparam interface {
@@ -32,9 +32,9 @@ skinparam interface {
 }
 
 ' ========================================================
-' 1. FRONTEND PRESENTATION & LOGIC LAYER
+' 1. FRONTEND PRESENTATION & LOGIC LAYER (MEMBER 2 SLIDE-OVER ARCHITECTURE)
 ' ========================================================
-package "Frontend — Presentation & Client Architecture" {
+package "Frontend — Slide-Over Architecture & Component Hierarchy" {
 
     interface "Assignment" as IAssignment <<TypeScript Interface>> {
         + id: number
@@ -57,7 +57,7 @@ package "Frontend — Presentation & Client Architecture" {
         + due_date: string
     }
 
-    class "AssignmentCRUDAssignmentPage" as PageComponent <<React Component (Page)>> {
+    class "AssignmentCRUDAssignmentPage" as PageComponent <<React Component (Host Page)>> {
         - assignments: Assignment[]
         - isLoading: boolean
         - isRefreshing: boolean
@@ -85,8 +85,9 @@ package "Frontend — Presentation & Client Architecture" {
         + render(): JSX.Element
     }
 
-    class "IndividualAssignmentHeader" as HeaderComp <<React Component>> {
+    class "AssignmentActionBar" as ActionBarComp <<React Component (Top Action Bar)>> {
         + totalCount: number
+        + filteredCount?: number
         + isRefreshing: boolean
         + canManage: boolean
         --
@@ -95,8 +96,10 @@ package "Frontend — Presentation & Client Architecture" {
         + render(): JSX.Element
     }
 
-    class "IndividualAssignmentTable" as TableComp <<React Component>> {
+    class "AssignmentDataTable" as DataTableComp <<React Component (Filtered Data Grid)>> {
         - searchTerm: string
+        - statusFilter: "all" | "active" | "overdue"
+        - courseFilter: string
         - sortBy: "id" | "title" | "due_date"
         - sortOrder: "asc" | "desc"
         + assignments: Assignment[]
@@ -113,7 +116,7 @@ package "Frontend — Presentation & Client Architecture" {
         + render(): JSX.Element
     }
 
-    class "IndividualAssignmentFormModal" as FormModalComp <<React Component>> {
+    class "AssignmentDrawerForm" as DrawerFormComp <<React Component (Slide-Over Drawer)>> {
         - courses: Course[]
         - isLoadingCourses: boolean
         - formData: AssignmentFormData
@@ -132,7 +135,7 @@ package "Frontend — Presentation & Client Architecture" {
         + render(): JSX.Element
     }
 
-    class "IndividualAssignmentDeleteModal" as DeleteModalComp <<React Component>> {
+    class "AssignmentDeleteDialog" as DeleteDialogComp <<React Component (Confirm Dialog)>> {
         + assignment: Assignment | null
         + isOpen: boolean
         + isDeleting: boolean
@@ -142,7 +145,7 @@ package "Frontend — Presentation & Client Architecture" {
         + render(): JSX.Element
     }
 
-    class "IndividualAssignmentDetailModal" as DetailModalComp <<React Component>> {
+    class "AssignmentDetailDrawer" as DetailDrawerComp <<React Component (Slide-Over Detail Drawer)>> {
         + assignment: Assignment | null
         --
         + formatDate(dateStr?: string | null): string
@@ -188,6 +191,7 @@ package "Backend — Express.js REST API & Controller Layer" {
 
     class "assignmentController" as AssignmentController <<Controller Module>> {
         - validateAssignmentInput(data: Object): Promise<string[]>
+        - formatMySqlDate(dateStr: string): string
         --
         + getAssignments(req: Request, res: Response): Promise<Response>
         + getAssignmentById(req: Request, res: Response): Promise<Response>
@@ -239,22 +243,22 @@ package "Backend — Persistence & Database Layer" {
 ' RELATIONSHIPS & DEPENDENCIES
 ' ========================================================
 
-' Page assembles components
-PageComponent *-- HeaderComp : renders
-PageComponent *-- TableComp : renders
-PageComponent *-- FormModalComp : renders
-PageComponent *-- DeleteModalComp : renders
-PageComponent *-- DetailModalComp : renders
+' Page assembles Member 2 custom components
+PageComponent *-- ActionBarComp : renders
+PageComponent *-- DataTableComp : renders
+PageComponent *-- DrawerFormComp : renders
+PageComponent *-- DeleteDialogComp : renders
+PageComponent *-- DetailDrawerComp : renders
 
-' FormModal uses courseApi to populate course selection
-FormModalComp ..> CourseApi : loads courses
+' DrawerForm uses courseApi to populate course selection
+DrawerFormComp ..> CourseApi : loads courses
 
 ' Components manipulate Data Interfaces
 PageComponent ..> IAssignment : manages
-TableComp ..> IAssignment : displays
-FormModalComp ..> IAssignmentFormData : edits
-DeleteModalComp ..> IAssignment : references
-DetailModalComp ..> IAssignment : inspects
+DataTableComp ..> IAssignment : displays
+DrawerFormComp ..> IAssignmentFormData : edits
+DeleteDialogComp ..> IAssignment : references
+DetailDrawerComp ..> IAssignment : inspects
 
 ' Page uses Service
 PageComponent ..> AssignmentApi : invokes CRUD

@@ -1,5 +1,5 @@
-export { IndividualAssignmentHeader } from './IndividualAssignmentHeader';
-export { IndividualAssignmentTable } from './IndividualAssignmentTable';
-export { IndividualAssignmentFormModal } from './IndividualAssignmentFormModal';
-export { IndividualAssignmentDeleteModal } from './IndividualAssignmentDeleteModal';
-export { IndividualAssignmentDetailModal } from './IndividualAssignmentDetailModal';
+export { AssignmentActionBar } from './AssignmentActionBar';
+export { AssignmentDataTable } from './AssignmentDataTable';
+export { AssignmentDrawerForm } from './AssignmentDrawerForm';
+export { AssignmentDeleteDialog } from './AssignmentDeleteDialog';
+export { AssignmentDetailDrawer } from './AssignmentDetailDrawer';
