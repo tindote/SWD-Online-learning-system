@@ -1,8 +1,18 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
 const UserModel = require('../models/userModel');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_jwt_key_online_learning_2026_fa';
+dotenv.config();
+
+const getJwtSecret = () => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('SECURITY ERROR: JWT_SECRET environment variable is missing.');
+  }
+  return secret;
+};
+
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 // Generate JWT Token
@@ -13,7 +23,7 @@ const generateToken = (user) => {
       email: user.email,
       role: user.role
     },
-    JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: JWT_EXPIRES_IN }
   );
 };

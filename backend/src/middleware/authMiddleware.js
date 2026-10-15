@@ -1,7 +1,16 @@
 const jwt = require('jsonwebtoken');
-const db = require('../config/db');
+const dotenv = require('dotenv');
+const UserModel = require('../models/userModel');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_jwt_key_online_learning_2026_fa';
+dotenv.config();
+
+const getJwtSecret = () => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('SECURITY ERROR: JWT_SECRET environment variable is missing.');
+  }
+  return secret;
+};
 
 // Authenticate JWT Token
 const authenticate = async (req, res, next) => {
@@ -17,8 +26,11 @@ const authenticate = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     let decoded;
     try {
-      decoded = jwt.verify(token, JWT_SECRET);
+      decoded = jwt.verify(token, getJwtSecret());
     } catch (err) {
+      if (err.message && err.message.startsWith('SECURITY ERROR')) {
+        throw err;
+      }
       return res.status(401).json({
         success: false,
         message: 'Phiên đăng nhập không hợp lệ hoặc đã hết hạn'
@@ -26,25 +38,22 @@ const authenticate = async (req, res, next) => {
     }
 
     // Fetch user from database to ensure user still exists and role is fresh
-    const [rows] = await db.query(
-      'SELECT id, name, email, role, avatar, bio, created_at FROM users WHERE id = ?',
-      [decoded.id]
-    );
+    const user = await UserModel.getById(decoded.id);
 
-    if (rows.length === 0) {
+    if (!user) {
       return res.status(401).json({
         success: false,
         message: 'Tài khoản không còn tồn tại trên hệ thống'
       });
     }
 
-    req.user = rows[0];
+    req.user = user;
     next();
   } catch (error) {
     console.error('Authentication Error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Lỗi xác thực người dùng'
+      message: error.message.startsWith('SECURITY ERROR') ? error.message : 'Lỗi xác thực người dùng'
     });
   }
 };
@@ -61,18 +70,14 @@ const optionalAuth = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     let decoded;
     try {
-      decoded = jwt.verify(token, JWT_SECRET);
+      decoded = jwt.verify(token, getJwtSecret());
     } catch (err) {
       req.user = null;
       return next();
     }
 
-    const [rows] = await db.query(
-      'SELECT id, name, email, role, avatar, bio, created_at FROM users WHERE id = ?',
-      [decoded.id]
-    );
-
-    req.user = rows[0] || null;
+    const user = await UserModel.getById(decoded.id);
+    req.user = user || null;
     next();
   } catch (error) {
     req.user = null;
