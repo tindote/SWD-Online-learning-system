@@ -278,6 +278,13 @@ export const Header: React.FC = () => {
                         <div className="dropdown-desc">Quản lý các nhóm chuyên ngành đào tạo</div>
                       </div>
                     </Link>
+                    <Link to="/individual/category-crud" className={`dropdown-item ${isPathActive('/individual/category-crud') ? 'active' : ''}`}>
+                      <FolderTree size={16} />
+                      <div>
+                        <div className="dropdown-title">Category Management</div>
+                        <div className="dropdown-desc">Quản lý và phân loại danh mục khóa học</div>
+                      </div>
+                    </Link>
                   </div>
                 )}
               </div>
@@ -581,6 +588,9 @@ export const Header: React.FC = () => {
                   </Link>
                   <Link to="/admin/categories" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
                     <FolderTree size={18} /> Quản lý danh mục
+                  </Link>
+                  <Link to="/individual/category-crud" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
+                    <FolderTree size={18} /> Category Management
                   </Link>
 
                   <div className="mobile-group-title">Bài tập & Bài nộp</div>

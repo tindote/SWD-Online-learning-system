@@ -118,6 +118,14 @@ const EnrollmentModel = {
   delete: async (id) => {
     const [result] = await db.query('DELETE FROM enrollments WHERE id = ?', [id]);
     return result.affectedRows > 0;
+  },
+
+  updateStatusByUserAndCourse: async (userId, courseId, status) => {
+    const [result] = await db.query(
+      'UPDATE enrollments SET status = ? WHERE user_id = ? AND course_id = ?',
+      [status, userId, courseId]
+    );
+    return result.affectedRows > 0;
   }
 };
 

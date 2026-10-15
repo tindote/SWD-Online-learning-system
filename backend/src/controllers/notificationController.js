@@ -1,13 +1,9 @@
-const db = require('../config/db');
+const NotificationModel = require('../models/notificationModel');
 
 const NotificationController = {
   getNotifications: async (req, res) => {
     try {
-      const [rows] = await db.query(
-        'SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 30',
-        [req.user.id]
-      );
-
+      const rows = await NotificationModel.getByUserId(req.user.id, 30);
       const unreadCount = rows.filter(n => !n.is_read).length;
 
       return res.status(200).json({
@@ -28,10 +24,7 @@ const NotificationController = {
   markAsRead: async (req, res) => {
     try {
       const { id } = req.params;
-      await db.query(
-        'UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?',
-        [id, req.user.id]
-      );
+      await NotificationModel.markAsRead(id, req.user.id);
 
       return res.status(200).json({
         success: true,
@@ -48,10 +41,7 @@ const NotificationController = {
 
   markAllAsRead: async (req, res) => {
     try {
-      await db.query(
-        'UPDATE notifications SET is_read = 1 WHERE user_id = ?',
-        [req.user.id]
-      );
+      await NotificationModel.markAllAsRead(req.user.id);
 
       return res.status(200).json({
         success: true,
