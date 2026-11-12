@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { learningApi } from '../services/learningApi';
 import { CourseLearningData, LessonWithProgress } from '../types/progress';
+import { useAuth } from '../context/AuthContext';
+import { ChatWindow } from '../components/chatbot/ChatWindow';
 import {
   GraduationCap,
   ArrowLeft,
@@ -18,6 +20,7 @@ import {
 export const LearningPage: React.FC = () => {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId?: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [learningData, setLearningData] = useState<CourseLearningData | null>(null);
   const [currentLesson, setCurrentLesson] = useState<LessonWithProgress | null>(null);
@@ -398,6 +401,25 @@ export const LearningPage: React.FC = () => {
           )}
         </main>
       </div>
+
+      {/* Gemini RAG AI Learning Assistant */}
+      <ChatWindow
+        courseId={learningData.course.id}
+        courseTitle={learningData.course.title}
+        currentLessonTitle={currentLesson?.title}
+        canIndexCourse={
+          user?.role === 'admin' ||
+          (user?.role === 'instructor' &&
+            (Number(learningData.course.instructor_id) === Number(user?.id) ||
+              learningData.course.instructor?.trim().toLowerCase() === user?.name?.trim().toLowerCase()))
+        }
+        onSelectLesson={(targetLessonId) => {
+          const found = learningData.lessons.find((l) => l.id === Number(targetLessonId));
+          if (found) {
+            handleSelectLesson(found);
+          }
+        }}
+      />
     </div>
   );
 };

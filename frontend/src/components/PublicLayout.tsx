@@ -1,9 +1,14 @@
 import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Header } from './Header';
+import { ChatWindow } from './chatbot/ChatWindow';
 import { GraduationCap, Mail, Phone, MapPin, Heart } from 'lucide-react';
 
 export const PublicLayout: React.FC = () => {
+  const location = useLocation();
+  // CourseDetailPage (/courses/:id) renders its own contextual ChatWindow
+  const isCourseDetailRoute = /^\/courses\/\d+/.test(location.pathname);
+  const isAuthRoute = location.pathname === '/login' || location.pathname === '/register';
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#f8fafc' }}>
       <Header />
@@ -72,6 +77,8 @@ export const PublicLayout: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {!isCourseDetailRoute && !isAuthRoute && <ChatWindow courseId={null} />}
     </div>
   );
 };
