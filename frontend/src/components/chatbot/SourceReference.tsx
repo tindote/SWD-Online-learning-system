@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, ExternalLink, GraduationCap, User, ArrowRight } from 'lucide-react';
+import { BookOpen, ExternalLink, Compass, User, ArrowUpRight } from 'lucide-react';
 import { AiSourceReference } from '../../types/aiChat';
 
 interface SourceReferenceProps {
@@ -27,7 +27,7 @@ export const SourceReference: React.FC<SourceReferenceProps> = ({
         style={{
           marginTop: '12px',
           paddingTop: '10px',
-          borderTop: '1px solid #e2e8f0'
+          borderTop: '1px solid #ccfbf1'
         }}
       >
         <div
@@ -35,19 +35,21 @@ export const SourceReference: React.FC<SourceReferenceProps> = ({
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            fontSize: '0.74rem',
-            fontWeight: 700,
-            color: '#4338ca',
+            fontSize: '0.73rem',
+            fontWeight: 800,
+            color: '#0f766e',
             marginBottom: '8px'
           }}
         >
-          <GraduationCap size={14} color="#4f46e5" />
-          <span>Khóa học đề xuất (Bấm để xem chi tiết):</span>
+          <Compass size={14} color="#0d9488" />
+          <span>KHÓA HỌC ĐỀ XUẤT (BẤM ĐỂ MỞ TRANG KHÓA HỌC):</span>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
           {sources.map((src, idx) => {
-            const isFree = src.category?.toLowerCase().includes('miễn phí') || src.title.toLowerCase().includes('miễn phí');
+            const isFree =
+              src.category?.toLowerCase().includes('miễn phí') ||
+              src.title.toLowerCase().includes('miễn phí');
             return (
               <button
                 key={`${src.course_id || idx}`}
@@ -58,8 +60,8 @@ export const SourceReference: React.FC<SourceReferenceProps> = ({
                   textAlign: 'left',
                   padding: '9px 11px',
                   borderRadius: '10px',
-                  backgroundColor: '#f8fafc',
-                  border: '1px solid #cbd5e1',
+                  backgroundColor: '#f0fdfa',
+                  border: '1px solid #99f6e4',
                   cursor: onSelectCourse ? 'pointer' : 'default',
                   display: 'flex',
                   alignItems: 'center',
@@ -73,7 +75,7 @@ export const SourceReference: React.FC<SourceReferenceProps> = ({
                     style={{
                       fontSize: '0.8rem',
                       fontWeight: 700,
-                      color: '#1e1b4b',
+                      color: '#0f172a',
                       marginBottom: '3px',
                       lineHeight: 1.35
                     }}
@@ -87,7 +89,7 @@ export const SourceReference: React.FC<SourceReferenceProps> = ({
                       alignItems: 'center',
                       gap: '8px',
                       fontSize: '0.7rem',
-                      color: '#64748b'
+                      color: '#475569'
                     }}
                   >
                     {src.instructor && (
@@ -99,10 +101,10 @@ export const SourceReference: React.FC<SourceReferenceProps> = ({
                       <span
                         style={{
                           padding: '1px 7px',
-                          borderRadius: '999px',
-                          fontWeight: 600,
-                          backgroundColor: isFree ? '#dcfce7' : '#eef2ff',
-                          color: isFree ? '#15803d' : '#4338ca'
+                          borderRadius: '6px',
+                          fontWeight: 700,
+                          backgroundColor: isFree ? '#dcfce7' : '#ccfbf1',
+                          color: isFree ? '#15803d' : '#115e59'
                         }}
                       >
                         {src.category}
@@ -115,16 +117,16 @@ export const SourceReference: React.FC<SourceReferenceProps> = ({
                   style={{
                     width: '28px',
                     height: '28px',
-                    borderRadius: '8px',
-                    backgroundColor: '#eef2ff',
-                    color: '#4f46e5',
+                    borderRadius: '7px',
+                    backgroundColor: '#0d9488',
+                    color: '#ffffff',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0
                   }}
                 >
-                  <ArrowRight size={14} />
+                  <ArrowUpRight size={15} />
                 </div>
               </button>
             );
@@ -139,7 +141,7 @@ export const SourceReference: React.FC<SourceReferenceProps> = ({
       style={{
         marginTop: '10px',
         paddingTop: '8px',
-        borderTop: '1px dashed #cbd5e1'
+        borderTop: '1px dashed #99f6e4'
       }}
     >
       <div
@@ -147,14 +149,14 @@ export const SourceReference: React.FC<SourceReferenceProps> = ({
           display: 'flex',
           alignItems: 'center',
           gap: '5px',
-          fontSize: '0.73rem',
+          fontSize: '0.72rem',
           fontWeight: 700,
-          color: '#475569',
+          color: '#0f766e',
           marginBottom: '6px'
         }}
       >
-        <BookOpen size={13} color="#4f46e5" />
-        <span>Nguồn bài học tham chiếu (RAG):</span>
+        <BookOpen size={13} color="#0d9488" />
+        <span>Tài liệu bài giảng tham chiếu:</span>
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -177,13 +179,13 @@ export const SourceReference: React.FC<SourceReferenceProps> = ({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '5px',
-                fontSize: '0.73rem',
-                fontWeight: 600,
+                fontSize: '0.72rem',
+                fontWeight: 700,
                 padding: '4px 9px',
                 borderRadius: '6px',
-                backgroundColor: '#eef2ff',
-                color: '#4338ca',
-                border: '1px solid #c7d2fe',
+                backgroundColor: '#f0fdfa',
+                color: '#0f766e',
+                border: '1px solid #99f6e4',
                 cursor: onSelectLesson ? 'pointer' : 'default',
                 textAlign: 'left',
                 maxWidth: '100%'
@@ -194,7 +196,7 @@ export const SourceReference: React.FC<SourceReferenceProps> = ({
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
-                  maxWidth: '240px'
+                  maxWidth: '230px'
                 }}
               >
                 {label}

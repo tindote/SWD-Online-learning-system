@@ -1,218 +1,218 @@
 import React from 'react';
 import {
-  Bot,
-  History,
-  Plus,
-  X,
+  Cpu,
+  ChevronDown,
+  ChevronUp,
   Maximize2,
   Minimize2,
-  Database,
-  RefreshCw
+  X,
+  FolderKanban
 } from 'lucide-react';
 
 interface ChatHeaderProps {
   courseTitle?: string;
+  activeConversationTitle?: string;
   showHistory: boolean;
   isExpanded: boolean;
-  canIndexCourse: boolean;
-  isIndexing: boolean;
   onToggleHistory: () => void;
-  onNewConversation: () => void;
   onToggleExpand: () => void;
-  onIndexCourse?: () => void;
   onClose: () => void;
 }
 
 export const ChatHeader: React.FC<ChatHeaderProps> = ({
   courseTitle,
+  activeConversationTitle,
   showHistory,
   isExpanded,
-  canIndexCourse,
-  isIndexing,
   onToggleHistory,
-  onNewConversation,
   onToggleExpand,
-  onIndexCourse,
   onClose
 }) => {
   return (
     <div
       style={{
-        background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%)',
+        background: 'linear-gradient(135deg, #0f172a 0%, #134e4a 65%, #0f766e 100%)',
         color: '#ffffff',
-        padding: '14px 16px',
+        padding: '12px 14px 10px',
+        borderBottom: '1px solid rgba(94, 234, 212, 0.25)',
+        flexShrink: 0,
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '10px',
-        borderBottom: '1px solid rgba(255,255,255,0.12)',
-        flexShrink: 0
+        flexDirection: 'column',
+        gap: '9px'
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+      {/* Top Row: Brand Identity + Window Controls */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '10px'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+          <div
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              backgroundColor: 'rgba(20, 184, 166, 0.2)',
+              border: '1px solid rgba(94, 234, 212, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}
+          >
+            <Cpu size={19} color="#5eead4" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: '0.95rem',
+                  fontWeight: 800,
+                  color: '#ffffff',
+                  whiteSpace: 'nowrap',
+                  letterSpacing: '0.01em'
+                }}
+              >
+                AI Assistant
+              </h3>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '0.65rem',
+                  backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                  color: '#6ee7b7',
+                  padding: '2px 7px',
+                  borderRadius: '6px',
+                  fontWeight: 700,
+                  border: '1px solid rgba(110, 231, 183, 0.35)'
+                }}
+              >
+                <span
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: '#10b981'
+                  }}
+                />
+                RAG Engine
+              </span>
+            </div>
+            {courseTitle && (
+              <p
+                style={{
+                  margin: '2px 0 0',
+                  fontSize: '0.72rem',
+                  color: '#99f6e4',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: isExpanded ? '460px' : '250px'
+                }}
+                title={courseTitle}
+              >
+                {courseTitle}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+          <button
+            type="button"
+            onClick={onToggleExpand}
+            title={isExpanded ? 'Thu nhỏ khung chat' : 'Mở rộng khung chat'}
+            style={{
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              color: '#ccfbf1',
+              borderRadius: '8px',
+              padding: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+          </button>
+
+          <button
+            type="button"
+            onClick={onClose}
+            title="Đóng AI Assistant"
+            style={{
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              color: '#ccfbf1',
+              borderRadius: '8px',
+              padding: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <X size={15} />
+          </button>
+        </div>
+      </div>
+
+      {/* Interactive Session Selector Dropdown Button */}
+      <button
+        type="button"
+        onClick={onToggleHistory}
+        title="Bấm để chuyển đổi hoặc xem danh sách phiên hỏi đáp"
+        style={{
+          width: '100%',
+          backgroundColor: showHistory ? 'rgba(20, 184, 166, 0.28)' : 'rgba(15, 23, 42, 0.45)',
+          border: '1px solid rgba(94, 234, 212, 0.3)',
+          borderRadius: '9px',
+          padding: '6px 10px',
+          color: '#f0fdfa',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '8px',
+          cursor: 'pointer',
+          fontSize: '0.75rem',
+          fontWeight: 600,
+          textAlign: 'left'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '7px', minWidth: 0, flex: 1 }}>
+          <FolderKanban size={14} color="#5eead4" style={{ flexShrink: 0 }} />
+          <span
+            style={{
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}
+          >
+            {activeConversationTitle || 'Phiên tư vấn mới (Chưa lưu)'}
+          </span>
+        </div>
         <div
           style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '10px',
-            backgroundColor: 'rgba(255,255,255,0.16)',
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
-            justifyContent: 'center',
+            gap: '4px',
+            fontSize: '0.68rem',
+            color: '#5eead4',
             flexShrink: 0
           }}
         >
-          <Bot size={20} color="#a5b4fc" />
+          <span>{showHistory ? 'Đóng danh sách' : 'Đổi phiên'}</span>
+          {showHistory ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </div>
-        <div style={{ minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <h3
-              style={{
-                margin: 0,
-                fontSize: '0.95rem',
-                fontWeight: 700,
-                color: '#ffffff',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Trợ lý Học tập AI
-            </h3>
-            <span
-              style={{
-                fontSize: '0.68rem',
-                backgroundColor: 'rgba(16, 185, 129, 0.25)',
-                color: '#6ee7b7',
-                padding: '2px 7px',
-                borderRadius: '999px',
-                fontWeight: 600,
-                border: '1px solid rgba(110, 231, 183, 0.35)'
-              }}
-            >
-              Gemini RAG
-            </span>
-          </div>
-          {courseTitle && (
-            <p
-              style={{
-                margin: '2px 0 0',
-                fontSize: '0.75rem',
-                color: '#c7d2fe',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                maxWidth: isExpanded ? '420px' : '210px'
-              }}
-              title={courseTitle}
-            >
-              {courseTitle}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-        {canIndexCourse && onIndexCourse && (
-          <button
-            type="button"
-            onClick={onIndexCourse}
-            disabled={isIndexing}
-            title="Cập nhật chỉ mục RAG cho bài giảng khóa học này (Giảng viên / Admin)"
-            style={{
-              background: 'rgba(255,255,255,0.14)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              color: '#e0e7ff',
-              borderRadius: '8px',
-              padding: '6px 8px',
-              cursor: isIndexing ? 'wait' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              fontSize: '0.72rem',
-              fontWeight: 600
-            }}
-          >
-            {isIndexing ? <RefreshCw size={14} className="spin-icon" /> : <Database size={14} />}
-            <span>{isIndexing ? 'Đang nạp...' : 'Index RAG'}</span>
-          </button>
-        )}
-
-        <button
-          type="button"
-          onClick={onToggleHistory}
-          title="Lịch sử trò chuyện"
-          style={{
-            background: showHistory ? '#4f46e5' : 'rgba(255,255,255,0.12)',
-            border: 'none',
-            color: '#ffffff',
-            borderRadius: '8px',
-            padding: '7px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <History size={16} />
-        </button>
-
-        <button
-          type="button"
-          onClick={onNewConversation}
-          title="Tạo cuộc trò chuyện mới"
-          style={{
-            background: 'rgba(255,255,255,0.12)',
-            border: 'none',
-            color: '#ffffff',
-            borderRadius: '8px',
-            padding: '7px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <Plus size={16} />
-        </button>
-
-        <button
-          type="button"
-          onClick={onToggleExpand}
-          title={isExpanded ? 'Thu nhỏ cửa sổ' : 'Mở rộng cửa sổ'}
-          style={{
-            background: 'rgba(255,255,255,0.12)',
-            border: 'none',
-            color: '#ffffff',
-            borderRadius: '8px',
-            padding: '7px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          {isExpanded ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
-        </button>
-
-        <button
-          type="button"
-          onClick={onClose}
-          title="Đóng cửa sổ chat"
-          style={{
-            background: 'rgba(255,255,255,0.12)',
-            border: 'none',
-            color: '#ffffff',
-            borderRadius: '8px',
-            padding: '7px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <X size={16} />
-        </button>
-      </div>
+      </button>
     </div>
   );
 };
-

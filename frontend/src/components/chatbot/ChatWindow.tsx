@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { AlertCircle, CheckCircle2, RefreshCw, LogIn, Sparkles } from 'lucide-react';
+import { AlertCircle, CheckCircle2, RefreshCw, LogIn, Cpu } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { aiChatApi } from '../../services/aiChatApi';
 import { AiConversation, AiMessage } from '../../types/aiChat';
@@ -58,14 +58,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const [statusNotice, setStatusNotice] = useState<string | null>(null);
   const [lastFailedQuestion, setLastFailedQuestion] = useState<string | null>(null);
 
-  // Sync activeConversationId when storageKey changes (e.g. switching between courses or advisor mode)
   useEffect(() => {
     const saved = localStorage.getItem(storageKey);
     const parsed = saved ? Number(saved) : NaN;
     setActiveConversationId(Number.isInteger(parsed) && parsed > 0 ? parsed : null);
   }, [storageKey]);
 
-  // Persist activeConversationId to localStorage
   useEffect(() => {
     if (activeConversationId) {
       localStorage.setItem(storageKey, String(activeConversationId));
@@ -164,6 +162,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     setSending(true);
     setError(null);
     setLastFailedQuestion(null);
+    if (showHistory) setShowHistory(false);
 
     const tempUserMsg: AiMessage = {
       id: Date.now(),
@@ -206,7 +205,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       setError(
         err.response?.data?.message ||
           err.message ||
-          'Không thể nhận phản hồi từ Trợ lý AI. Vui lòng thử lại.'
+          'AI Assistant chưa thể phản hồi vào lúc này. Vui lòng thử lại.'
       );
     } finally {
       setSending(false);
@@ -237,9 +236,11 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const displayHeaderSubtitle = isAdvisorMode
     ? courseTitle
-      ? `Tư vấn khóa học: ${courseTitle}`
-      : 'Tư vấn chọn khóa học & Lộ trình học tập'
+      ? `Chế độ tư vấn: ${courseTitle}`
+      : 'Chế độ Tư vấn Khóa học & Lộ trình'
     : courseTitle;
+
+  const activeConvObj = conversations.find((c) => c.id === activeConversationId);
 
   return (
     <>
@@ -254,16 +255,16 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           className="ai-chat-window"
           style={{
             position: 'fixed',
-            bottom: '84px',
+            bottom: '82px',
             right: '24px',
-            width: isExpanded ? '680px' : '410px',
+            width: isExpanded ? '680px' : '415px',
             maxWidth: 'calc(100vw - 32px)',
-            height: isExpanded ? '680px' : '560px',
-            maxHeight: 'calc(100vh - 110px)',
+            height: isExpanded ? '680px' : '575px',
+            maxHeight: 'calc(100vh - 108px)',
             backgroundColor: '#ffffff',
-            borderRadius: '18px',
-            boxShadow: '0 24px 48px -12px rgba(15, 23, 42, 0.28)',
-            border: '1px solid #cbd5e1',
+            borderRadius: '16px',
+            boxShadow: '0 24px 48px -12px rgba(15, 23, 42, 0.32)',
+            border: '1.5px solid #0d9488',
             zIndex: 1050,
             display: 'flex',
             flexDirection: 'column',
@@ -273,14 +274,11 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         >
           <ChatHeader
             courseTitle={displayHeaderSubtitle}
+            activeConversationTitle={activeConvObj?.title}
             showHistory={showHistory}
             isExpanded={isExpanded}
-            canIndexCourse={!isAdvisorMode && canIndexCourse}
-            isIndexing={indexing}
             onToggleHistory={() => setShowHistory((prev) => !prev)}
-            onNewConversation={handleNewConversation}
             onToggleExpand={() => setIsExpanded((prev) => !prev)}
-            onIndexCourse={!isAdvisorMode && canIndexCourse ? handleIndexCourse : undefined}
             onClose={() => setIsOpen(false)}
           />
 
@@ -294,50 +292,61 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 textAlign: 'center',
-                backgroundColor: '#f8fafc'
+                backgroundColor: '#f4f9f8'
               }}
             >
               <div
                 style={{
                   width: '54px',
                   height: '54px',
-                  borderRadius: '16px',
-                  backgroundColor: '#eef2ff',
-                  color: '#4f46e5',
+                  borderRadius: '14px',
+                  backgroundColor: '#0f172a',
+                  color: '#5eead4',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: '16px'
+                  marginBottom: '16px',
+                  border: '1px solid #0d9488'
                 }}
               >
-                <Sparkles size={28} />
+                <Cpu size={28} />
               </div>
-              <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: '0 0 8px' }}>
-                Đăng nhập để sử dụng Trợ lý AI
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: '0 0 8px' }}>
+                Đăng nhập để kết nối AI Assistant
               </h4>
               <p style={{ fontSize: '0.84rem', color: '#64748b', lineHeight: 1.55, margin: '0 0 20px' }}>
-                Vui lòng đăng nhập tài khoản để được <strong>Trợ lý AI (Gemini RAG)</strong> tư vấn lộ trình khóa học phù hợp hoặc giải đáp nội dung bài giảng.
+                Vui lòng đăng nhập tài khoản để sử dụng <strong>AI Assistant</strong> tư vấn lộ trình khóa học hoặc tra cứu kiến thức bài giảng.
               </p>
               <Link
                 to="/login"
                 onClick={() => setIsOpen(false)}
-                className="btn btn-primary"
-                style={{ textDecoration: 'none', padding: '10px 20px', fontSize: '0.88rem' }}
+                style={{
+                  textDecoration: 'none',
+                  padding: '10px 20px',
+                  fontSize: '0.86rem',
+                  fontWeight: 700,
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #0f766e 0%, #0d9488 100%)',
+                  color: '#ffffff',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
               >
                 <LogIn size={16} /> Đăng nhập ngay
               </Link>
             </div>
           ) : (
             <>
-              {/* Status Notice Banner */}
               {statusNotice && (
                 <div
                   style={{
-                    backgroundColor: '#ecfdf5',
-                    borderBottom: '1px solid #a7f3d0',
-                    color: '#065f46',
+                    backgroundColor: '#f0fdfa',
+                    borderBottom: '1px solid #99f6e4',
+                    color: '#0f766e',
                     padding: '8px 14px',
                     fontSize: '0.78rem',
+                    fontWeight: 600,
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px'
@@ -348,7 +357,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                 </div>
               )}
 
-              {/* Error & Retry Banner */}
               {error && (
                 <div
                   style={{
@@ -377,8 +385,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                         color: '#b91c1c',
                         borderRadius: '6px',
                         padding: '4px 8px',
-                        fontSize: '0.73rem',
-                        fontWeight: 600,
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
                         cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -392,7 +400,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                 </div>
               )}
 
-              {/* Body Wrapper (History Drawer + Message List) */}
               <div style={{ position: 'relative', flex: 1, display: 'flex', overflow: 'hidden' }}>
                 {showHistory && (
                   <ConversationHistory
@@ -423,6 +430,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               <ChatInput
                 onSend={handleSendMessage}
                 disabled={sending || loadingMessages}
+                isAdvisorMode={isAdvisorMode}
+                conversationCount={conversations.length}
+                showHistory={showHistory}
+                canIndexCourse={!isAdvisorMode && canIndexCourse}
+                isIndexing={indexing}
+                onNewConversation={handleNewConversation}
+                onToggleHistory={() => setShowHistory((prev) => !prev)}
+                onIndexCourse={!isAdvisorMode && canIndexCourse ? handleIndexCourse : undefined}
               />
             </>
           )}

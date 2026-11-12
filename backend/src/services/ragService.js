@@ -502,7 +502,7 @@ const RagService = {
       const lessonOutline = item.lessons.length > 0
         ? item.lessons.map((l) => `   + Bài ${l.lesson_order}: ${l.title}`).join('\n')
         : '   + (Đang cập nhật danh sách bài học)';
-      return `[Khóa học nổi bật #${idx + 1} - ID=${c.id}]: ${c.title}
+      return `[Khóa học tiêu biểu #${idx + 1}]: ${c.title}
 - Danh mục: ${c.category}
 - Giảng viên: ${c.instructor}
 - Học phí: ${priceStr}

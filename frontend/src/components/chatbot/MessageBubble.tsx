@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot, User } from 'lucide-react';
+import { Cpu, User } from 'lucide-react';
 import { AiMessage } from '../../types/aiChat';
 import { SourceReference } from './SourceReference';
 
@@ -9,9 +9,6 @@ interface MessageBubbleProps {
   onSelectCourse?: (courseId: number) => void;
 }
 
-/**
- * Parses inline markdown (**bold** and `code`) into React nodes.
- */
 const renderInlineMarkdown = (text: string, isUser: boolean): React.ReactNode[] => {
   const cleaned = text.replace(/\[Mã KH\s*#\d+\]\s*/gi, '');
   const tokens = cleaned.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
@@ -36,13 +33,13 @@ const renderInlineMarkdown = (text: string, isUser: boolean): React.ReactNode[] 
         <code
           key={idx}
           style={{
-            backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : '#f1f5f9',
-            color: isUser ? '#ffffff' : '#4338ca',
+            backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : '#f0fdfa',
+            color: isUser ? '#ffffff' : '#0f766e',
             padding: '1px 6px',
             borderRadius: '5px',
-            fontSize: '0.8rem',
+            fontSize: '0.79rem',
             fontFamily: 'Consolas, Monaco, monospace',
-            border: isUser ? 'none' : '1px solid #e2e8f0'
+            border: isUser ? 'none' : '1px solid #99f6e4'
           }}
         >
           {token.slice(1, -1)}
@@ -54,10 +51,6 @@ const renderInlineMarkdown = (text: string, isUser: boolean): React.ReactNode[] 
   });
 };
 
-/**
- * Renders structured Markdown (headings, bullet lists, numbered lists, code blocks, dividers)
- * into clean, readable UI blocks inside the chat bubble.
- */
 const renderFormattedContent = (rawContent: string, isUser: boolean): React.ReactNode => {
   if (isUser) {
     return <div style={{ whiteSpace: 'pre-wrap' }}>{rawContent}</div>;
@@ -66,7 +59,6 @@ const renderFormattedContent = (rawContent: string, isUser: boolean): React.Reac
   const blocks = rawContent.split(/(```[\s\S]*?```)/g);
 
   return blocks.map((block, blockIdx) => {
-    // Code block
     if (block.startsWith('```') && block.endsWith('```')) {
       const lines = block.slice(3, -3).trim().split('\n');
       const firstLine = lines[0]?.trim() || '';
@@ -78,14 +70,15 @@ const renderFormattedContent = (rawContent: string, isUser: boolean): React.Reac
           key={blockIdx}
           style={{
             backgroundColor: '#0f172a',
-            color: '#f8fafc',
+            color: '#ccfbf1',
             padding: '10px 12px',
             borderRadius: '10px',
             overflowX: 'auto',
             fontSize: '0.78rem',
             fontFamily: 'Consolas, Monaco, monospace',
             margin: '8px 0',
-            lineHeight: 1.5
+            lineHeight: 1.5,
+            border: '1px solid #115e59'
           }}
         >
           <code>{codeContent}</code>
@@ -104,14 +97,13 @@ const renderFormattedContent = (rawContent: string, isUser: boolean): React.Reac
         return;
       }
 
-      // Horizontal rule
       if (/^[-*_]{3,}$/.test(line)) {
         elements.push(
           <hr
             key={`hr-${lineIdx}`}
             style={{
               border: 'none',
-              borderTop: '1px solid #e2e8f0',
+              borderTop: '1px solid #ccfbf1',
               margin: '10px 0'
             }}
           />
@@ -119,7 +111,6 @@ const renderFormattedContent = (rawContent: string, isUser: boolean): React.Reac
         return;
       }
 
-      // Headings (#, ##, ###)
       const headingMatch = line.match(/^(#{1,4})\s+(.*)$/);
       if (headingMatch) {
         const headingText = headingMatch[2].replace(/^\*\*|\*\*$/g, '');
@@ -130,12 +121,12 @@ const renderFormattedContent = (rawContent: string, isUser: boolean): React.Reac
               marginTop: lineIdx > 0 ? '10px' : '2px',
               marginBottom: '6px',
               padding: '6px 10px',
-              backgroundColor: '#f8fafc',
-              borderLeft: '3px solid #4f46e5',
+              backgroundColor: '#f0fdfa',
+              borderLeft: '3.5px solid #0d9488',
               borderRadius: '0 8px 8px 0',
-              fontSize: '0.88rem',
-              fontWeight: 700,
-              color: '#1e1b4b'
+              fontSize: '0.86rem',
+              fontWeight: 800,
+              color: '#134e4a'
             }}
           >
             {renderInlineMarkdown(headingText, false)}
@@ -144,7 +135,6 @@ const renderFormattedContent = (rawContent: string, isUser: boolean): React.Reac
         return;
       }
 
-      // Bullet list (* or - or •)
       const bulletMatch = line.match(/^([*\-•])\s+(.*)$/);
       if (bulletMatch) {
         elements.push(
@@ -162,8 +152,8 @@ const renderFormattedContent = (rawContent: string, isUser: boolean): React.Reac
               style={{
                 width: '6px',
                 height: '6px',
-                borderRadius: '50%',
-                backgroundColor: '#6366f1',
+                borderRadius: '2px',
+                backgroundColor: '#0d9488',
                 marginTop: '7px',
                 flexShrink: 0
               }}
@@ -174,7 +164,6 @@ const renderFormattedContent = (rawContent: string, isUser: boolean): React.Reac
         return;
       }
 
-      // Numbered list (1. 2. ...)
       const numMatch = line.match(/^(\d+)\.\s+(.*)$/);
       if (numMatch) {
         elements.push(
@@ -193,10 +182,10 @@ const renderFormattedContent = (rawContent: string, isUser: boolean): React.Reac
                 minWidth: '20px',
                 height: '20px',
                 borderRadius: '6px',
-                backgroundColor: '#eef2ff',
-                color: '#4f46e5',
-                fontSize: '0.73rem',
-                fontWeight: 700,
+                backgroundColor: '#ccfbf1',
+                color: '#0f766e',
+                fontSize: '0.72rem',
+                fontWeight: 800,
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -206,7 +195,7 @@ const renderFormattedContent = (rawContent: string, isUser: boolean): React.Reac
             >
               {numMatch[1]}
             </span>
-            <div style={{ flex: 1, fontWeight: 600, color: '#0f172a' }}>
+            <div style={{ flex: 1, fontWeight: 700, color: '#0f172a' }}>
               {renderInlineMarkdown(numMatch[2], false)}
             </div>
           </div>
@@ -214,7 +203,6 @@ const renderFormattedContent = (rawContent: string, isUser: boolean): React.Reac
         return;
       }
 
-      // Normal paragraph line
       elements.push(
         <p key={`p-${lineIdx}`} style={{ margin: '0 0 4px' }}>
           {renderInlineMarkdown(line, false)}
@@ -251,7 +239,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         display: 'flex',
         flexDirection: isUser ? 'row-reverse' : 'row',
         alignItems: 'flex-start',
-        gap: '10px',
+        gap: '9px',
         marginBottom: '14px'
       }}
     >
@@ -260,10 +248,10 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         style={{
           width: '30px',
           height: '30px',
-          borderRadius: '50%',
-          backgroundColor: isUser ? '#4f46e5' : '#eef2ff',
-          color: isUser ? '#ffffff' : '#4f46e5',
-          border: isUser ? 'none' : '1px solid #c7d2fe',
+          borderRadius: '9px',
+          backgroundColor: isUser ? '#0d9488' : '#0f172a',
+          color: isUser ? '#ffffff' : '#5eead4',
+          border: isUser ? 'none' : '1px solid #0f766e',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -271,24 +259,55 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           marginTop: '2px'
         }}
       >
-        {isUser ? <User size={15} /> : <Bot size={16} />}
+        {isUser ? <User size={15} /> : <Cpu size={15} />}
       </div>
 
       {/* Bubble Content */}
       <div
         style={{
-          maxWidth: '85%',
-          backgroundColor: isUser ? '#4f46e5' : '#ffffff',
+          maxWidth: '86%',
+          background: isUser
+            ? 'linear-gradient(135deg, #0f766e 0%, #0d9488 100%)'
+            : '#ffffff',
           color: isUser ? '#ffffff' : '#1e293b',
-          border: isUser ? 'none' : '1px solid #e2e8f0',
-          borderRadius: isUser ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
-          padding: '12px 14px',
-          boxShadow: '0 2px 6px rgba(15, 23, 42, 0.05)',
-          fontSize: '0.85rem',
+          border: isUser ? 'none' : '1px solid #cbd5e1',
+          borderLeft: isUser ? 'none' : '4px solid #0d9488',
+          borderRadius: isUser ? '14px 14px 3px 14px' : '6px 14px 14px 6px',
+          padding: '11px 14px',
+          boxShadow: '0 2px 8px rgba(15, 23, 42, 0.06)',
+          fontSize: '0.84rem',
           lineHeight: 1.6,
           wordBreak: 'break-word'
         }}
       >
+        {!isUser && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '6px',
+              paddingBottom: '4px',
+              borderBottom: '1px solid #f1f5f9'
+            }}
+          >
+            <span
+              style={{
+                fontSize: '0.69rem',
+                fontWeight: 800,
+                color: '#0f766e',
+                textTransform: 'uppercase',
+                letterSpacing: '0.03em'
+              }}
+            >
+              AI Assistant
+            </span>
+            <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>
+              {formatTime(message.created_at)}
+            </span>
+          </div>
+        )}
+
         <div>{renderFormattedContent(message.content, isUser)}</div>
 
         {!isUser && message.sources && message.sources.length > 0 && (
@@ -299,16 +318,18 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           />
         )}
 
-        <div
-          style={{
-            marginTop: '6px',
-            fontSize: '0.67rem',
-            color: isUser ? '#c7d2fe' : '#94a3b8',
-            textAlign: isUser ? 'right' : 'left'
-          }}
-        >
-          {formatTime(message.created_at)}
-        </div>
+        {isUser && (
+          <div
+            style={{
+              marginTop: '4px',
+              fontSize: '0.65rem',
+              color: '#ccfbf1',
+              textAlign: 'right'
+            }}
+          >
+            {formatTime(message.created_at)}
+          </div>
+        )}
       </div>
     </div>
   );

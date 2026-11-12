@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageSquare, Plus, Trash2, X } from 'lucide-react';
+import { Terminal, Plus, Trash2, Check } from 'lucide-react';
 import { AiConversation } from '../../types/aiChat';
 
 interface ConversationHistoryProps {
@@ -39,159 +39,151 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
     <div
       style={{
         position: 'absolute',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        width: '265px',
-        maxWidth: '85%',
-        backgroundColor: '#ffffff',
-        borderRight: '1px solid #e2e8f0',
-        zIndex: 20,
+        inset: 0,
+        backgroundColor: 'rgba(15, 23, 42, 0.35)',
+        zIndex: 25,
         display: 'flex',
-        flexDirection: 'column',
-        boxShadow: '6px 0 20px rgba(15, 23, 42, 0.08)'
+        flexDirection: 'column'
       }}
+      onClick={onClosePanel}
     >
+      {/* Top Slide-Down Panel */}
       <div
         style={{
-          padding: '12px 14px',
-          borderBottom: '1px solid #f1f5f9',
+          backgroundColor: '#ffffff',
+          borderBottom: '2px solid #0d9488',
+          borderRadius: '0 0 16px 16px',
+          maxHeight: '78%',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
+          flexDirection: 'column',
+          boxShadow: '0 16px 32px rgba(15, 23, 42, 0.2)'
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a' }}>
-          Lịch sử trò chuyện ({conversations.length})
-        </span>
-        <button
-          type="button"
-          onClick={onClosePanel}
+        <div
           style={{
-            background: 'none',
-            border: 'none',
-            color: '#64748b',
-            cursor: 'pointer',
-            padding: '4px',
-            display: 'flex'
-          }}
-          title="Đóng danh sách"
-        >
-          <X size={16} />
-        </button>
-      </div>
-
-      <div style={{ padding: '10px 12px', borderBottom: '1px solid #f1f5f9' }}>
-        <button
-          type="button"
-          onClick={() => {
-            onNewConversation();
-            onClosePanel();
-          }}
-          style={{
-            width: '100%',
-            padding: '8px 12px',
-            borderRadius: '8px',
-            border: '1px dashed #6366f1',
-            backgroundColor: '#eef2ff',
-            color: '#4338ca',
-            fontWeight: 600,
-            fontSize: '0.8rem',
-            cursor: 'pointer',
+            padding: '10px 14px',
+            backgroundColor: '#f0fdfa',
+            borderBottom: '1px solid #ccfbf1',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px'
+            justifyContent: 'space-between',
+            gap: '8px'
           }}
         >
-          <Plus size={15} /> Cuộc trò chuyện mới
-        </button>
-      </div>
+          <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#115e59' }}>
+            DANH SÁCH PHIÊN HỎI ĐÁP ({conversations.length})
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              onNewConversation();
+              onClosePanel();
+            }}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '7px',
+              border: '1px solid #0d9488',
+              backgroundColor: '#0d9488',
+              color: '#ffffff',
+              fontWeight: 700,
+              fontSize: '0.73rem',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <Plus size={13} /> Tạo phiên mới
+          </button>
+        </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
-        {loading ? (
-          <div style={{ padding: '20px', textAlign: 'center', fontSize: '0.8rem', color: '#64748b' }}>
-            Đang tải lịch sử...
-          </div>
-        ) : conversations.length === 0 ? (
-          <div style={{ padding: '24px 12px', textAlign: 'center', fontSize: '0.8rem', color: '#94a3b8' }}>
-            Chưa có cuộc trò chuyện nào trong khóa học này.
-          </div>
-        ) : (
-          conversations.map((conv) => {
-            const isActive = conv.id === activeConversationId;
-            return (
-              <div
-                key={conv.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '6px',
-                  padding: '8px 10px',
-                  borderRadius: '8px',
-                  marginBottom: '4px',
-                  backgroundColor: isActive ? '#eef2ff' : 'transparent',
-                  border: isActive ? '1px solid #c7d2fe' : '1px solid transparent',
-                  cursor: 'pointer'
-                }}
-                onClick={() => {
-                  onSelectConversation(conv.id);
-                  onClosePanel();
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', minWidth: 0, flex: 1 }}>
-                  <MessageSquare
-                    size={15}
-                    color={isActive ? '#4f46e5' : '#64748b'}
-                    style={{ marginTop: '2px', flexShrink: 0 }}
-                  />
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div
-                      style={{
-                        fontSize: '0.8rem',
-                        fontWeight: isActive ? 700 : 500,
-                        color: isActive ? '#312e81' : '#334155',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}
-                      title={conv.title}
-                    >
-                      {conv.title}
-                    </div>
-                    <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: '2px' }}>
-                      {formatDate(conv.updated_at || conv.created_at)}
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  title="Xóa cuộc trò chuyện này"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteConversation(conv.id);
-                  }}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+          {loading ? (
+            <div style={{ padding: '20px', textAlign: 'center', fontSize: '0.8rem', color: '#0f766e' }}>
+              Đang đồng bộ danh sách phiên...
+            </div>
+          ) : conversations.length === 0 ? (
+            <div style={{ padding: '22px 12px', textAlign: 'center', fontSize: '0.8rem', color: '#64748b' }}>
+              Chưa có lịch sử phiên hỏi đáp nào trong chế độ này.
+            </div>
+          ) : (
+            conversations.map((conv) => {
+              const isActive = conv.id === activeConversationId;
+              return (
+                <div
+                  key={conv.id}
                   style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#94a3b8',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    borderRadius: '4px',
                     display: 'flex',
-                    flexShrink: 0
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '8px',
+                    padding: '9px 11px',
+                    borderRadius: '10px',
+                    marginBottom: '6px',
+                    backgroundColor: isActive ? '#f0fdfa' : '#f8fafc',
+                    border: isActive ? '1px solid #2dd4bf' : '1px solid #e2e8f0',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    onSelectConversation(conv.id);
+                    onClosePanel();
                   }}
                 >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            );
-          })
-        )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '9px', minWidth: 0, flex: 1 }}>
+                    <Terminal
+                      size={15}
+                      color={isActive ? '#0d9488' : '#64748b'}
+                      style={{ flexShrink: 0 }}
+                    />
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div
+                        style={{
+                          fontSize: '0.8rem',
+                          fontWeight: isActive ? 700 : 600,
+                          color: isActive ? '#134e4a' : '#334155',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                        title={conv.title}
+                      >
+                        {conv.title}
+                      </div>
+                      <div style={{ fontSize: '0.67rem', color: '#94a3b8', marginTop: '1px' }}>
+                        Cập nhật: {formatDate(conv.updated_at || conv.created_at)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                    {isActive && <Check size={14} color="#0d9488" />}
+                    <button
+                      type="button"
+                      title="Xóa phiên này"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteConversation(conv.id);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#94a3b8',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        borderRadius: '6px',
+                        display: 'flex'
+                      }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
     </div>
   );
 };
-
