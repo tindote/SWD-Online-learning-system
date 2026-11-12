@@ -1,0 +1,64 @@
+@startuml member1-category-use-case
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam shadowing true
+skinparam roundcorner 10
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+skinparam actor {
+    BackgroundColor #EEF2FF
+    BorderColor #4F46E5
+    FontName "Inter", "Segoe UI", sans-serif
+    FontSize 13
+}
+
+skinparam usecase {
+    BackgroundColor #F8FAFC
+    BorderColor #6366F1
+    FontName "Inter", "Segoe UI", sans-serif
+    FontSize 12
+    ArrowColor #4338CA
+    ArrowFontColor #312E81
+}
+
+skinparam rectangle {
+    BackgroundColor #FAFAFA
+    BorderColor #CBD5E1
+    FontName "Inter", "Segoe UI", sans-serif
+    FontSize 14
+    FontStyle bold
+}
+
+left to right direction
+
+actor "Administrator\n(Quản trị viên)" as Admin
+
+rectangle "Online Learning System — Category Management (Member 1)" {
+    usecase "UC-CAT-01: View Category List\n(Xem danh sách danh mục)" as UC_List
+    usecase "UC-CAT-02: View Category Details\n(Xem chi tiết danh mục)" as UC_Detail
+    usecase "UC-CAT-03: Create Category\n(Thêm mới danh mục)" as UC_Create
+    usecase "UC-CAT-04: Update Category\n(Cập nhật danh mục)" as UC_Update
+    usecase "UC-CAT-05: Delete Category\n(Xóa danh mục)" as UC_Delete
+    
+    usecase "Validate Input Data\n(Kiểm tra tính hợp lệ)" as UC_Validate
+    usecase "Authenticate & Authorize Admin\n(Xác thực & phân quyền)" as UC_Auth
+}
+
+' Actor Associations
+Admin --> UC_List
+Admin --> UC_Detail
+Admin --> UC_Create
+Admin --> UC_Update
+Admin --> UC_Delete
+
+' Include relationships
+UC_Create ..> UC_Auth : <<include>>
+UC_Update ..> UC_Auth : <<include>>
+UC_Delete ..> UC_Auth : <<include>>
+
+UC_Create ..> UC_Validate : <<include>>
+UC_Update ..> UC_Validate : <<include>>
+
+@enduml

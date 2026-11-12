@@ -1,7 +1,7 @@
 const EnrollmentModel = require('../models/enrollmentModel');
 const CourseModel = require('../models/courseModel');
 const UserModel = require('../models/userModel');
-const db = require('../config/db');
+const NotificationModel = require('../models/notificationModel');
 
 const getEnrollments = async (req, res) => {
   try {
@@ -137,14 +137,11 @@ const enrollInCourse = async (req, res) => {
     });
 
     // Create a notification for the student
-    await db.query(
-      'INSERT INTO notifications (user_id, title, message) VALUES (?, ?, ?)',
-      [
-        req.user.id,
-        'Ghi danh thành công!',
-        `Bạn đã ghi danh thành công khóa học "${course.title}". Hãy bắt đầu học ngay bây giờ!`
-      ]
-    );
+    await NotificationModel.create({
+      user_id: req.user.id,
+      title: 'Ghi danh thành công!',
+      message: `Bạn đã ghi danh thành công khóa học "${course.title}". Hãy bắt đầu học ngay bây giờ!`
+    });
 
     return res.status(201).json({
       success: true,

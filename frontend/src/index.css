@@ -1594,3 +1594,48 @@ input:focus, select:focus, textarea:focus {
   color: var(--text-muted);
   font-weight: 600;
 }
+
+/* AI Learning Assistant Chatbot (Gemini + RAG) */
+@keyframes aiTypingBounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+@keyframes aiSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ai-typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #4f46e5;
+  display: inline-block;
+  animation: aiTypingBounce 1.2s infinite ease-in-out;
+}
+
+.spin-icon {
+  animation: aiSpin 1s linear infinite;
+}
+
+@media (max-width: 640px) {
+  .ai-chat-window {
+    right: 12px !important;
+    left: 12px !important;
+    bottom: 78px !important;
+    width: auto !important;
+    max-width: none !important;
+    height: calc(100vh - 96px) !important;
+  }
+}

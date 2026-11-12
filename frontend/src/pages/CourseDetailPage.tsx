@@ -5,6 +5,7 @@ import { enrollmentApi } from '../services/enrollmentApi';
 import { reviewApi } from '../services/reviewApi';
 import { Course } from '../types/course';
 import { useAuth } from '../context/AuthContext';
+import { ChatWindow } from '../components/chatbot/ChatWindow';
 import {
   BookOpen,
   CheckCircle2,
@@ -612,6 +613,22 @@ export const CourseDetailPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Show AI Learning Assistant (Course RAG Mode if enrolled/owner/admin, or Course Advisor Mode if browsing) */}
+      {course.isEnrolled || isInstructorOwner || user?.role === 'admin' ? (
+        <ChatWindow
+          courseId={course.id}
+          courseTitle={course.title}
+          canIndexCourse={user?.role === 'admin' || isInstructorOwner}
+          onSelectLesson={(targetLessonId) => navigate(`/learn/${course.id}/lesson/${targetLessonId}`)}
+        />
+      ) : (
+        <ChatWindow
+          courseId={null}
+          previewCourseId={course.id}
+          courseTitle={course.title}
+        />
+      )}
     </div>
   );
 };

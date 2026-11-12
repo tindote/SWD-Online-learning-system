@@ -1,29 +1,20 @@
-const db = require('../config/db');
+const ReviewModel = require('../models/reviewModel');
+const CourseModel = require('../models/courseModel');
+const EnrollmentModel = require('../models/enrollmentModel');
 
 const ReviewController = {
   getCourseReviews: async (req, res) => {
     try {
       const { courseId } = req.params;
-      const [reviews] = await db.query(`
-        SELECT r.*, u.name AS user_name, u.avatar AS user_avatar
-        FROM reviews r
-        JOIN users u ON r.user_id = u.id
-        WHERE r.course_id = ?
-        ORDER BY r.created_at DESC
-      `, [courseId]);
-
-      // Calculate average
-      const [stats] = await db.query(`
-        SELECT COALESCE(AVG(rating), 0) AS average_rating, COUNT(*) AS count
-        FROM reviews WHERE course_id = ?
-      `, [courseId]);
+      const reviews = await ReviewModel.getByCourseId(courseId);
+      const stats = await ReviewModel.getCourseStats(courseId);
 
       return res.status(200).json({
         success: true,
         data: {
           reviews,
-          averageRating: Number(Number(stats[0].average_rating).toFixed(1)),
-          count: stats[0].count
+          averageRating: stats.averageRating,
+          count: stats.count
         }
       });
     } catch (error) {
@@ -57,8 +48,8 @@ const ReviewController = {
       }
 
       // Check if instructor owns the course
-      const [course] = await db.query('SELECT instructor_id FROM courses WHERE id = ?', [course_id]);
-      if (course.length > 0 && course[0].instructor_id === userId) {
+      const course = await CourseModel.getById(course_id);
+      if (course && course.instructor_id === userId) {
         return res.status(400).json({
           success: false,
           message: 'Giảng viên không thể tự đánh giá khóa học của chính mình'
@@ -66,12 +57,8 @@ const ReviewController = {
       }
 
       // Check if user is enrolled
-      const [enrollment] = await db.query(
-        'SELECT * FROM enrollments WHERE user_id = ? AND course_id = ?',
-        [userId, course_id]
-      );
-
-      if (enrollment.length === 0 && req.user.role !== 'admin') {
+      const enrollment = await EnrollmentModel.getByUserAndCourse(userId, course_id);
+      if (!enrollment && req.user.role !== 'admin') {
         return res.status(403).json({
           success: false,
           message: 'Bạn phải đăng ký khóa học này trước khi có thể để lại đánh giá'
@@ -79,17 +66,14 @@ const ReviewController = {
       }
 
       // Check if already reviewed
-      const [existing] = await db.query(
-        'SELECT * FROM reviews WHERE user_id = ? AND course_id = ?',
-        [userId, course_id]
-      );
+      const existing = await ReviewModel.getByUserAndCourse(userId, course_id);
 
-      if (existing.length > 0) {
+      if (existing) {
         // Update existing review
-        await db.query(
-          'UPDATE reviews SET rating = ?, review = ? WHERE id = ?',
-          [numRating, review ? review.trim() : null, existing[0].id]
-        );
+        await ReviewModel.update(existing.id, {
+          rating: numRating,
+          review: review ? review.trim() : null
+        });
 
         return res.status(200).json({
           success: true,
@@ -98,10 +82,12 @@ const ReviewController = {
       }
 
       // Insert new review
-      await db.query(
-        'INSERT INTO reviews (user_id, course_id, rating, review) VALUES (?, ?, ?, ?)',
-        [userId, course_id, numRating, review ? review.trim() : null]
-      );
+      await ReviewModel.create({
+        user_id: userId,
+        course_id,
+        rating: numRating,
+        review: review ? review.trim() : null
+      });
 
       return res.status(201).json({
         success: true,
@@ -120,23 +106,23 @@ const ReviewController = {
   deleteReview: async (req, res) => {
     try {
       const { id } = req.params;
-      const [review] = await db.query('SELECT * FROM reviews WHERE id = ?', [id]);
+      const review = await ReviewModel.getById(id);
 
-      if (review.length === 0) {
+      if (!review) {
         return res.status(404).json({
           success: false,
           message: 'Không tìm thấy đánh giá'
         });
       }
 
-      if (req.user.role !== 'admin' && review[0].user_id !== req.user.id) {
+      if (req.user.role !== 'admin' && review.user_id !== req.user.id) {
         return res.status(403).json({
           success: false,
           message: 'Bạn không có quyền xóa đánh giá này'
         });
       }
 
-      await db.query('DELETE FROM reviews WHERE id = ?', [id]);
+      await ReviewModel.delete(id);
 
       return res.status(200).json({
         success: true,

@@ -6,6 +6,8 @@ const validateCategoryInput = (data) => {
 
   if (!name || typeof name !== 'string' || name.trim() === '') {
     errors.push('Category name is required');
+  } else if (name.trim().length > 100) {
+    errors.push('Category name cannot exceed 100 characters');
   }
 
   return errors;
@@ -31,6 +33,14 @@ const getCategories = async (req, res) => {
 const getCategoryById = async (req, res) => {
   try {
     const { id } = req.params;
+
+    if (isNaN(Number(id)) || Number(id) <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid category ID format'
+      });
+    }
+
     const category = await CategoryModel.getById(id);
 
     if (!category) {
@@ -96,6 +106,13 @@ const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
 
+    if (isNaN(Number(id)) || Number(id) <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid category ID format'
+      });
+    }
+
     const existingCategory = await CategoryModel.getById(id);
     if (!existingCategory) {
       return res.status(404).json({
@@ -144,6 +161,13 @@ const deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
 
+    if (isNaN(Number(id)) || Number(id) <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid category ID format'
+      });
+    }
+
     const existingCategory = await CategoryModel.getById(id);
     if (!existingCategory) {
       return res.status(404).json({
@@ -160,6 +184,12 @@ const deleteCategory = async (req, res) => {
     });
   } catch (error) {
     console.error('Error deleting category:', error);
+    if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.code === 'ER_ROW_IS_REFERENCED') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete category: It is currently linked to courses'
+      });
+    }
     return res.status(500).json({
       success: false,
       message: 'Server error while deleting category',

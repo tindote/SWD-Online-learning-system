@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 dotenv.config();
 
 const authRoutes = require('./routes/authRoutes');
@@ -16,6 +18,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const learningRoutes = require('./routes/learningRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const aiChatRoutes = require('./routes/aiChatRoutes');
 
 const app = express();
 const HOST = process.env.HOST || '0.0.0.0';
@@ -71,6 +74,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/progress', learningRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/ai', aiChatRoutes);
 
 // 404 Handler for undefined routes
 app.use((req, res) => {

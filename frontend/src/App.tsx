@@ -38,6 +38,7 @@ import { ChangePasswordPage } from './pages/ChangePasswordPage';
 
 // Individual Member Assignment Pages
 import { AssignmentCRUDAssignmentPage } from './pages/AssignmentCRUDAssignmentPage';
+import { CategoryCRUDAssignmentPage } from './pages/CategoryCRUDAssignmentPage';
 
 import './index.css';
 
@@ -132,17 +133,18 @@ export function App() {
             <Route path="/change-password" element={<ChangePasswordPage />} />
           </Route>
 
-          {/* Individual Member Assignments */}
+          {/* 7. Individual Member Assignments */}
           <Route element={<Layout />}>
             <Route path="/individual/assignment-crud" element={<AssignmentCRUDAssignmentPage />} />
+            <Route path="/individual/category-crud" element={<CategoryCRUDAssignmentPage />} />
           </Route>
 
-          {/* 7. Redirect Shortcuts */}
+          {/* 8. Redirect Shortcuts */}
           <Route path="/admin" element={<Navigate to="/admin/courses" replace />} />
           <Route path="/instructor" element={<Navigate to="/instructor/courses" replace />} />
           <Route path="/student" element={<Navigate to="/student/courses" replace />} />
 
-          {/* 8. Fallback */}
+          {/* 9. Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>

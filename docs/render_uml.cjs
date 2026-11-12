@@ -66,6 +66,8 @@ function fetchDiagram(encoded, format, destPath) {
 async function renderAll() {
   const umlDir = path.resolve(__dirname, 'uml');
   const files = [
+    { puml: 'member1-category-use-case.puml', base: 'member1-category-use-case' },
+    { puml: 'member1-category-class-diagram.puml', base: 'member1-category-class-diagram' },
     { puml: 'member2-assignment-use-case.puml', base: 'member2-assignment-use-case' },
     { puml: 'member2-assignment-class-diagram.puml', base: 'member2-assignment-class-diagram' }
   ];

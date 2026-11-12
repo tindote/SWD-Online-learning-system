@@ -419,14 +419,10 @@ INSERT INTO `assignments` (`id`, `course_id`, `title`, `description`, `due_date`
 INSERT INTO `enrollments` (`user_id`, `course_id`, `status`) VALUES
 (1, 1, 'active'),
 (1, 2, 'active'),
-(2, 1, 'active'),
-(2, 3, 'completed'),
-(1, 1, 'active'),
-(1, 2, 'active'),
 (1, 4, 'completed'),
 (2, 1, 'active'),
 (2, 2, 'completed'),
-(2, 3, 'active'),
+(2, 3, 'completed'),
 (12, 4, 'active'),
 (12, 6, 'active'),
 (13, 5, 'active'),
@@ -503,7 +499,8 @@ INSERT INTO `enrollments` (`user_id`, `course_id`, `status`) VALUES
 (12, 25, 'active'),
 (1, 26, 'active'),
 (2, 26, 'active'),
-(12, 26, 'active');
+(12, 26, 'active')
+ON DUPLICATE KEY UPDATE status=VALUES(status);
 
 -- 7. Reviews
 INSERT INTO `reviews` (`user_id`, `course_id`, `rating`, `review`) VALUES

@@ -150,6 +150,51 @@ CREATE TABLE `notifications` (
   CONSTRAINT `fk_notifications_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 11. AI Conversations Table (Gemini RAG Chatbot)
+CREATE TABLE IF NOT EXISTS `ai_conversations` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT NOT NULL,
+  `course_id` INT NULL DEFAULT NULL,
+  `title` VARCHAR(255) NOT NULL DEFAULT 'Cuộc trò chuyện mới',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT `fk_ai_conversations_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_ai_conversations_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  INDEX `idx_ai_conv_user_course` (`user_id`, `course_id`),
+  INDEX `idx_ai_conv_updated` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 12. AI Messages Table
+CREATE TABLE IF NOT EXISTS `ai_messages` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `conversation_id` INT NOT NULL,
+  `sender` ENUM('USER', 'AI') NOT NULL,
+  `content` TEXT NOT NULL,
+  `sources` JSON DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT `fk_ai_messages_conversation` FOREIGN KEY (`conversation_id`) REFERENCES `ai_conversations` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  INDEX `idx_ai_msg_conv_created` (`conversation_id`, `created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 13. AI Knowledge Chunks Table (RAG Vector Store)
+CREATE TABLE IF NOT EXISTS `ai_knowledge_chunks` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `course_id` INT NOT NULL,
+  `lesson_id` INT NOT NULL,
+  `chunk_index` INT NOT NULL,
+  `content` TEXT NOT NULL,
+  `content_hash` VARCHAR(64) DEFAULT NULL,
+  `embedding` JSON NOT NULL,
+  `source_title` VARCHAR(255) NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT `fk_ai_chunks_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_ai_chunks_lesson` FOREIGN KEY (`lesson_id`) REFERENCES `lessons` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  UNIQUE KEY `uq_ai_lesson_chunk` (`lesson_id`, `chunk_index`),
+  INDEX `idx_ai_chunks_course` (`course_id`),
+  INDEX `idx_ai_chunks_lesson` (`lesson_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Indexes for performance
 CREATE INDEX `idx_courses_category` ON `courses` (`category`);
 CREATE INDEX `idx_courses_instructor` ON `courses` (`instructor_id`);
@@ -419,14 +464,10 @@ INSERT INTO `assignments` (`id`, `course_id`, `title`, `description`, `due_date`
 INSERT INTO `enrollments` (`user_id`, `course_id`, `status`) VALUES
 (1, 1, 'active'),
 (1, 2, 'active'),
-(2, 1, 'active'),
-(2, 3, 'completed'),
-(1, 1, 'active'),
-(1, 2, 'active'),
 (1, 4, 'completed'),
 (2, 1, 'active'),
 (2, 2, 'completed'),
-(2, 3, 'active'),
+(2, 3, 'completed'),
 (12, 4, 'active'),
 (12, 6, 'active'),
 (13, 5, 'active'),
@@ -503,7 +544,8 @@ INSERT INTO `enrollments` (`user_id`, `course_id`, `status`) VALUES
 (12, 25, 'active'),
 (1, 26, 'active'),
 (2, 26, 'active'),
-(12, 26, 'active');
+(12, 26, 'active')
+ON DUPLICATE KEY UPDATE status=VALUES(status);
 
 -- 7. Reviews
 INSERT INTO `reviews` (`user_id`, `course_id`, `rating`, `review`) VALUES

@@ -1,5 +1,8 @@
 const CourseModel = require('../models/courseModel');
-const db = require('../config/db');
+const LessonModel = require('../models/lessonModel');
+const ReviewModel = require('../models/reviewModel');
+const EnrollmentModel = require('../models/enrollmentModel');
+const LearningModel = require('../models/learningModel');
 
 // Validation helper
 const validateCourseInput = (data) => {
@@ -83,19 +86,10 @@ const getCourseById = async (req, res) => {
     }
 
     // Fetch lessons for this course
-    const [lessons] = await db.query(
-      'SELECT id, course_id, title, lesson_order, video_url, resource_url, created_at FROM lessons WHERE course_id = ? ORDER BY lesson_order ASC',
-      [id]
-    );
+    const lessons = await LessonModel.getByCourseId(id);
 
     // Fetch reviews for this course
-    const [reviews] = await db.query(`
-      SELECT r.*, u.name AS user_name, u.avatar AS user_avatar
-      FROM reviews r
-      LEFT JOIN users u ON r.user_id = u.id
-      WHERE r.course_id = ?
-      ORDER BY r.created_at DESC
-    `, [id]);
+    const reviews = await ReviewModel.getByCourseId(id);
 
     // Check if the current logged in user is enrolled
     let isEnrolled = false;
@@ -103,22 +97,16 @@ const getCourseById = async (req, res) => {
     let progressPercentage = 0;
 
     if (req.user) {
-      const [enrollment] = await db.query(
-        'SELECT * FROM enrollments WHERE user_id = ? AND course_id = ?',
-        [req.user.id, id]
-      );
-      if (enrollment.length > 0) {
+      const enrollment = await EnrollmentModel.getByUserAndCourse(req.user.id, id);
+      if (enrollment) {
         isEnrolled = true;
-        enrollmentStatus = enrollment[0].status;
+        enrollmentStatus = enrollment.status;
 
         // Calculate progress
-        const [progressCount] = await db.query(
-          'SELECT COUNT(*) as completed_count FROM lesson_progress WHERE user_id = ? AND course_id = ? AND completed = 1',
-          [req.user.id, id]
-        );
+        const completedCount = await LearningModel.getCompletedCount(req.user.id, id);
         const totalLessons = lessons.length;
         if (totalLessons > 0) {
-          progressPercentage = Math.round((progressCount[0].completed_count / totalLessons) * 100);
+          progressPercentage = Math.round((completedCount / totalLessons) * 100);
         }
       }
     }

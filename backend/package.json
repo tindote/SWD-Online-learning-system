@@ -6,9 +6,12 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "seed": "node src/scripts/seed_comprehensive_data.js"
+    "migrate": "node src/config/migrate.js",
+    "seed": "node src/scripts/seed_comprehensive_data.js",
+    "index:course": "node src/scripts/indexCourse.js"
   },
   "dependencies": {
+    "@google/genai": "^3.2.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

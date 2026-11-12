@@ -1,0 +1,237 @@
+@startuml member1-category-class-diagram
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam shadowing true
+skinparam roundcorner 8
+skinparam classAttributeIconSize 0
+
+skinparam package {
+    BackgroundColor #F8FAFC
+    BorderColor #94A3B8
+    FontName "Inter", "Segoe UI", sans-serif
+    FontSize 13
+    FontStyle bold
+}
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor #6366F1
+    HeaderBackgroundColor #EEF2FF
+    FontName "Inter", "Segoe UI", sans-serif
+    FontSize 12
+    ArrowColor #4F46E5
+}
+
+skinparam interface {
+    BackgroundColor #FFFFFF
+    BorderColor #0284C7
+    HeaderBackgroundColor #E0F2FE
+    FontName "Inter", "Segoe UI", sans-serif
+    FontSize 12
+}
+
+' ========================================================
+' 1. FRONTEND PRESENTATION & LOGIC LAYER
+' ========================================================
+package "Frontend — Presentation & Client Architecture" {
+
+    interface "Category" as ICategory <<TypeScript Interface>> {
+        + id: number
+        + name: string
+        + description: string
+        + created_at?: string
+        + updated_at?: string
+    }
+
+    interface "CategoryFormData" as ICategoryFormData <<TypeScript Interface>> {
+        + name: string
+        + description: string
+    }
+
+    class "CategoryCRUDAssignmentPage" as PageComponent <<React Component (Page)>> {
+        - categories: Category[]
+        - isLoading: boolean
+        - isRefreshing: boolean
+        - error: string | null
+        - isFormOpen: boolean
+        - categoryToEdit: Category | null
+        - isSubmitting: boolean
+        - isDeleteOpen: boolean
+        - categoryToDelete: Category | null
+        - isDeleting: boolean
+        - categoryToView: Category | null
+        - toast: ToastState | null
+        --
+        + fetchCategories(isSilent?: boolean): Promise<void>
+        + handleOpenCreate(): void
+        + handleOpenEdit(category: Category): void
+        + handleCloseForm(): void
+        + handleViewCategory(category: Category): Promise<void>
+        + handleCloseView(): void
+        + handleOpenDelete(category: Category): void
+        + handleCloseDelete(): void
+        + handleFormSubmit(formData: CategoryFormData): Promise<void>
+        + handleConfirmDelete(): Promise<void>
+        + showToast(message: string, type: string): void
+        + render(): JSX.Element
+    }
+
+    class "IndividualCategoryHeader" as HeaderComp <<React Component>> {
+        + totalCount: number
+        + isRefreshing: boolean
+        + onRefresh(): void
+        + onOpenCreate(): void
+        + render(): JSX.Element
+    }
+
+    class "IndividualCategoryTable" as TableComp <<React Component>> {
+        - searchTerm: string
+        - sortBy: "id" | "name" | "created_at"
+        - sortOrder: "asc" | "desc"
+        + categories: Category[]
+        + isAdmin: boolean
+        --
+        + toggleSort(field: string): void
+        + formatDate(dateStr?: string): string
+        + onView(category: Category): void
+        + onEdit(category: Category): void
+        + onDelete(category: Category): void
+        + render(): JSX.Element
+    }
+
+    class "IndividualCategoryFormModal" as FormModalComp <<React Component>> {
+        - formData: CategoryFormData
+        - errors: Record<string, string>
+        - serverError: string | null
+        - touched: Record<string, boolean>
+        + categoryToEdit?: Category | null
+        + isOpen: boolean
+        + isSubmitting: boolean
+        --
+        + validate(data: CategoryFormData): Record<string, string>
+        + handleChange(e: ChangeEvent): void
+        + handleBlur(field: string): void
+        + handleSubmit(e: FormEvent): Promise<void>
+        + onClose(): void
+        + render(): JSX.Element
+    }
+
+    class "IndividualCategoryDeleteModal" as DeleteModalComp <<React Component>> {
+        + category: Category | null
+        + isOpen: boolean
+        + isDeleting: boolean
+        --
+        + onConfirm(): Promise<void>
+        + onCancel(): void
+        + render(): JSX.Element
+    }
+
+    class "IndividualCategoryDetailModal" as DetailModalComp <<React Component>> {
+        + category: Category | null
+        --
+        + formatDate(dateStr?: string): string
+        + onClose(): void
+        + render(): JSX.Element
+    }
+
+    class "categoryApi" as CategoryApi <<API Client Service>> {
+        - apiClient: AxiosInstance
+        --
+        + getCategories(): Promise<Category[]>
+        + getCategoryById(id: number): Promise<Category>
+        + createCategory(data: CategoryFormData): Promise<Category>
+        + updateCategory(id: number, data: CategoryFormData): Promise<Category>
+        + deleteCategory(id: number): Promise<void>
+    }
+}
+
+' ========================================================
+' 2. BACKEND API & CONTROLLER LAYER
+' ========================================================
+package "Backend — Express.js REST API & Business Logic" {
+
+    class "categoryRoutes" as CategoryRoutes <<Express Router Module>> {
+        + GET /api/categories
+        + GET /api/categories/:id
+        + POST /api/categories [Auth: Admin]
+        + PUT /api/categories/:id [Auth: Admin]
+        + DELETE /api/categories/:id [Auth: Admin]
+    }
+
+    class "authMiddleware" as AuthMiddleware <<Middleware Module>> {
+        + authenticate(req: Request, res: Response, next: NextFunction): void
+        + authorize(roles: string[]): MiddlewareFunction
+    }
+
+    class "categoryController" as CategoryController <<Controller Module>> {
+        - validateCategoryInput(data: Object): string[]
+        --
+        + getCategories(req: Request, res: Response): Promise<Response>
+        + getCategoryById(req: Request, res: Response): Promise<Response>
+        + createCategory(req: Request, res: Response): Promise<Response>
+        + updateCategory(req: Request, res: Response): Promise<Response>
+        + deleteCategory(req: Request, res: Response): Promise<Response>
+    }
+}
+
+' ========================================================
+' 3. PERSISTENCE & DATA ACCESS LAYER
+' ========================================================
+package "Backend — Data Access & Persistence" {
+
+    class "CategoryModel" as CategoryModel <<Data Access Object (DAO)>> {
+        - db: MySQLConnectionPool
+        --
+        + getAll(): Promise<CategoryRecord[]>
+        + getById(id: number | string): Promise<CategoryRecord | null>
+        + create(data: { name: string, description: string }): Promise<CategoryRecord>
+        + update(id: number | string, data: { name: string, description: string }): Promise<CategoryRecord | null>
+        + delete(id: number | string): Promise<boolean>
+    }
+
+    class "categories" as CategoryEntity <<Database Table (MySQL)>> {
+        + id: INT [PK, AUTO_INCREMENT]
+        + name: VARCHAR(100) [UNIQUE, NOT NULL]
+        + description: TEXT [NULLABLE]
+        + created_at: TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
+        + updated_at: TIMESTAMP [ON UPDATE CURRENT_TIMESTAMP]
+    }
+}
+
+' ========================================================
+' RELATIONSHIPS & DEPENDENCIES
+' ========================================================
+
+' Page assembles components
+PageComponent *-- HeaderComp : renders
+PageComponent *-- TableComp : renders
+PageComponent *-- FormModalComp : renders
+PageComponent *-- DeleteModalComp : renders
+PageComponent *-- DetailModalComp : renders
+
+' Components use Data Interfaces
+PageComponent ..> ICategory : manages
+PageComponent ..> ICategoryFormData : manipulates
+TableComp ..> ICategory : displays
+FormModalComp ..> ICategoryFormData : edits
+DeleteModalComp ..> ICategory : references
+DetailModalComp ..> ICategory : inspects
+
+' Page uses Service
+PageComponent ..> CategoryApi : invokes CRUD
+
+' HTTP Client calls Routes
+CategoryApi ..> CategoryRoutes : HTTP / JSON over Axios
+
+' Routes depend on Middleware and Controller
+CategoryRoutes ..> AuthMiddleware : protects write ops
+CategoryRoutes ..> CategoryController : dispatches actions
+
+' Controller calls DAO
+CategoryController ..> CategoryModel : executes queries
+
+' DAO maps to MySQL Table
+CategoryModel ..> CategoryEntity : SQL CRUD (Parameterized)
+
+@enduml

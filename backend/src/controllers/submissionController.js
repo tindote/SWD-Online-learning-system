@@ -1,6 +1,6 @@
 const SubmissionModel = require('../models/submissionModel');
 const AssignmentModel = require('../models/assignmentModel');
-const db = require('../config/db');
+const NotificationModel = require('../models/notificationModel');
 
 const getSubmissions = async (req, res) => {
   try {
@@ -217,14 +217,11 @@ const updateSubmission = async (req, res) => {
 
     // Notify the student about the grade/feedback
     if (grade !== undefined && grade !== null) {
-      await db.query(
-        'INSERT INTO notifications (user_id, title, message) VALUES (?, ?, ?)',
-        [
-          existing.user_id,
-          'Bài tập đã được chấm điểm',
-          `Bài nộp cho "${existing.assignment_title}" đã có điểm: ${grade}/100. ${feedback ? 'Nhận xét: ' + feedback : ''}`
-        ]
-      );
+      await NotificationModel.create({
+        user_id: existing.user_id,
+        title: 'Bài tập đã được chấm điểm',
+        message: `Bài nộp cho "${existing.assignment_title}" đã có điểm: ${grade}/100. ${feedback ? 'Nhận xét: ' + feedback : ''}`
+      });
     }
 
     return res.status(200).json({
