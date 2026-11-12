@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot, Sparkles, X } from 'lucide-react';
+import { Flower2, Sparkles, X } from 'lucide-react';
 
 interface ChatbotButtonProps {
   isOpen: boolean;
@@ -16,8 +16,8 @@ export const ChatbotButton: React.FC<ChatbotButtonProps> = ({
     <button
       type="button"
       onClick={onClick}
-      aria-label={isOpen ? 'Đóng Trợ lý Học tập AI' : 'Mở Trợ lý Học tập AI'}
-      title={courseTitle ? `Hỏi Trợ lý AI về: ${courseTitle}` : 'Trợ lý Học tập AI (Gemini RAG)'}
+      aria-label={isOpen ? 'Đóng Sakura AI' : 'Mở Sakura AI'}
+      title={courseTitle ? `Hỏi Sakura AI về: ${courseTitle}` : 'Sakura AI 🌸 — Cố vấn Học tập'}
       style={{
         position: 'fixed',
         bottom: '24px',
@@ -26,36 +26,54 @@ export const ChatbotButton: React.FC<ChatbotButtonProps> = ({
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
-        padding: isOpen ? '14px' : '14px 20px',
+        padding: isOpen ? '14px' : '10px 18px 10px 12px',
         borderRadius: '999px',
-        border: 'none',
+        border: '2px solid rgba(255, 255, 255, 0.85)',
         cursor: 'pointer',
         background: isOpen
-          ? '#1e1b4b'
-          : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+          ? 'linear-gradient(135deg, #be185d 0%, #9d174d 100%)'
+          : 'linear-gradient(135deg, #ec4899 0%, #f43f5e 55%, #fb7185 100%)',
         color: '#ffffff',
-        boxShadow: '0 12px 28px -4px rgba(79, 70, 229, 0.5)',
+        boxShadow: '0 12px 28px -4px rgba(236, 72, 153, 0.55), 0 0 0 4px rgba(251, 207, 232, 0.45)',
         fontWeight: 700,
-        fontSize: '0.92rem',
-        transition: 'all 0.2s ease'
+        fontSize: '0.88rem',
+        transition: 'all 0.22s ease'
       }}
     >
       {isOpen ? (
         <X size={22} />
       ) : (
         <>
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <Bot size={22} />
+          <div
+            style={{
+              width: '34px',
+              height: '34px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(255, 255, 255, 0.24)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              flexShrink: 0
+            }}
+          >
+            <Flower2 size={20} color="#ffffff" />
             <Sparkles
-              size={12}
-              color="#fbbf24"
-              style={{ position: 'absolute', top: '-5px', right: '-6px' }}
+              size={11}
+              color="#fef08a"
+              style={{ position: 'absolute', top: '-2px', right: '-2px' }}
             />
           </div>
-          <span>Trợ lý AI</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.15 }}>
+            <span style={{ fontSize: '0.88rem', fontWeight: 800, letterSpacing: '0.01em' }}>
+              Sakura AI 🌸
+            </span>
+            <span style={{ fontSize: '0.67rem', fontWeight: 500, color: '#ffe4e6' }}>
+              Cố vấn học tập
+            </span>
+          </div>
         </>
       )}
     </button>
   );
 };
-

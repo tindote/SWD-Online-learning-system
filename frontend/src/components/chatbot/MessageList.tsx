@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Sparkles, HelpCircle } from 'lucide-react';
+import { Flower2, Compass, Gift, Cpu, Cloud, BookOpen, Lightbulb, Code2, ShieldAlert } from 'lucide-react';
 import { AiMessage } from '../../types/aiChat';
 import { MessageBubble } from './MessageBubble';
 import { TypingIndicator } from './TypingIndicator';
@@ -31,22 +31,62 @@ export const MessageList: React.FC<MessageListProps> = ({
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  const suggestedPrompts = isAdvisorMode
+  const quickCards = isAdvisorMode
     ? [
-        previewCourseTitle
-          ? `Khóa học "${previewCourseTitle}" dạy những gì và phù hợp với ai?`
-          : 'Mình là người mới bắt đầu học lập trình Web thì nên chọn khóa học nào?',
-        'Hệ thống hiện có những khóa học nào miễn phí?',
-        'Tư vấn giúp mình lộ trình các khóa học về Data Science & AI',
-        'Gợi ý các khóa học về Mobile Development hoặc DevOps & Cloud'
+        {
+          icon: <Gift size={16} color="#db2777" />,
+          badge: 'Khóa học 0đ',
+          label: 'Khám phá khóa miễn phí',
+          prompt: 'Hệ thống hiện có những khóa học nào miễn phí?'
+        },
+        {
+          icon: <Compass size={16} color="#db2777" />,
+          badge: 'Người mới',
+          label: previewCourseTitle ? 'Đánh giá khóa đang xem' : 'Lộ trình học Web từ đầu',
+          prompt: previewCourseTitle
+            ? `Khóa học "${previewCourseTitle}" dạy những gì và phù hợp với ai?`
+            : 'Mình là người mới bắt đầu học lập trình Web thì nên chọn khóa học nào?'
+        },
+        {
+          icon: <Cpu size={16} color="#db2777" />,
+          badge: 'Xu hướng',
+          label: 'Lộ trình Data & AI',
+          prompt: 'Tư vấn giúp mình lộ trình các khóa học về Data Science & AI'
+        },
+        {
+          icon: <Cloud size={16} color="#db2777" />,
+          badge: 'Thực chiến',
+          label: 'Mobile & Cloud DevOps',
+          prompt: 'Gợi ý các khóa học về Mobile Development hoặc DevOps & Cloud'
+        }
       ]
     : [
-        currentLessonTitle
-          ? `Tóm tắt các ý chính của bài học "${currentLessonTitle}"`
-          : 'Tóm tắt nội dung bài học hiện tại',
-        'Giải thích khái niệm quan trọng nhất trong bài học này một cách dễ hiểu',
-        'Cho tôi một ví dụ thực tế áp dụng kiến thức của khóa học này',
-        'Những lưu ý hoặc lỗi thường gặp trong chủ đề này là gì?'
+        {
+          icon: <BookOpen size={16} color="#db2777" />,
+          badge: 'Tóm tắt 10s',
+          label: 'Ý chính bài học này',
+          prompt: currentLessonTitle
+            ? `Tóm tắt các ý chính của bài học "${currentLessonTitle}"`
+            : 'Tóm tắt nội dung bài học hiện tại'
+        },
+        {
+          icon: <Lightbulb size={16} color="#db2777" />,
+          badge: 'Dễ hiểu',
+          label: 'Giải thích khái niệm cốt lõi',
+          prompt: 'Giải thích khái niệm quan trọng nhất trong bài học này một cách dễ hiểu'
+        },
+        {
+          icon: <Code2 size={16} color="#db2777" />,
+          badge: 'Thực hành',
+          label: 'Ví dụ áp dụng thực tế',
+          prompt: 'Cho tôi một ví dụ thực tế áp dụng kiến thức của khóa học này'
+        },
+        {
+          icon: <ShieldAlert size={16} color="#db2777" />,
+          badge: 'Bí kíp',
+          label: 'Lỗi thường gặp cần tránh',
+          prompt: 'Những lưu ý hoặc lỗi thường gặp trong chủ đề này là gì?'
+        }
       ];
 
   return (
@@ -55,7 +95,7 @@ export const MessageList: React.FC<MessageListProps> = ({
         flex: 1,
         overflowY: 'auto',
         padding: '16px',
-        backgroundColor: '#f8fafc',
+        background: 'linear-gradient(180deg, #fffafb 0%, #fff1f5 100%)',
         display: 'flex',
         flexDirection: 'column'
       }}
@@ -64,78 +104,147 @@ export const MessageList: React.FC<MessageListProps> = ({
         <div
           style={{
             margin: 'auto 0',
-            textAlign: 'center',
-            padding: '12px 8px'
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px'
           }}
         >
+          {/* Sakura Greeting Card */}
           <div
             style={{
-              width: '46px',
-              height: '46px',
-              borderRadius: '14px',
-              backgroundColor: '#eef2ff',
-              color: '#4f46e5',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 12px'
+              backgroundColor: '#ffffff',
+              borderRadius: '20px',
+              padding: '18px 16px',
+              border: '1px solid #fbcfe8',
+              boxShadow: '0 8px 24px -6px rgba(236, 72, 153, 0.12)',
+              textAlign: 'center'
             }}
           >
-            <Sparkles size={24} />
-          </div>
-          <h4 style={{ margin: '0 0 6px', fontSize: '0.96rem', fontWeight: 700, color: '#0f172a' }}>
-            {isAdvisorMode
-              ? 'Xin chào! Mình là Trợ lý Tư vấn Khóa học AI'
-              : 'Xin chào! Mình là Trợ lý Học tập AI'}
-          </h4>
-          <p style={{ margin: '0 0 16px', fontSize: '0.8rem', color: '#64748b', lineHeight: 1.5 }}>
-            {isAdvisorMode ? (
-              <>
-                Mình sử dụng <strong>Google Gemini & RAG</strong> để tư vấn chọn khóa học, lộ trình học tập, học phí và đề cương dựa trên dữ liệu thực tế của hệ thống.
-              </>
-            ) : (
-              <>
-                Mình sử dụng công nghệ <strong>Google Gemini & RAG</strong> để trả lời câu hỏi dựa trực tiếp trên nội dung bài giảng của khóa học này.
-              </>
-            )}
-          </p>
-
-          <div style={{ textAlign: 'left' }}>
             <div
               style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '16px',
+                background: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)',
+                color: '#db2777',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '5px',
-                fontSize: '0.74rem',
-                fontWeight: 700,
-                color: '#475569',
-                marginBottom: '8px'
+                justifyContent: 'center',
+                margin: '0 auto 10px',
+                border: '1px solid #f9a8d4'
               }}
             >
-              <HelpCircle size={13} color="#4f46e5" />
-              <span>Gợi ý câu hỏi nhanh:</span>
+              <Flower2 size={25} />
             </div>
+            <h4
+              style={{
+                margin: '0 0 6px',
+                fontSize: '0.98rem',
+                fontWeight: 800,
+                color: '#831843'
+              }}
+            >
+              {isAdvisorMode
+                ? 'Chào bạn! Mình là Sakura AI 🌸'
+                : 'Sakura AI sẵn sàng hỗ trợ bài học 🌸'}
+            </h4>
+            <p
+              style={{
+                margin: 0,
+                fontSize: '0.79rem',
+                color: '#64748b',
+                lineHeight: 1.5
+              }}
+            >
+              {isAdvisorMode
+                ? 'Hãy chọn một chủ đề bên dưới hoặc nhắn mục tiêu của bạn, Sakura sẽ thiết kế lộ trình học phù hợp nhất!'
+                : 'Bạn đang thắc mắc phần nào trong bài giảng? Chọn nhanh một thẻ bên dưới để Sakura giải đáp ngay nhé!'}
+            </p>
+          </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {suggestedPrompts.map((prompt, index) => (
+          {/* 2x2 Grid of Quick Topic Cards */}
+          <div>
+            <div
+              style={{
+                fontSize: '0.73rem',
+                fontWeight: 700,
+                color: '#9d174d',
+                marginBottom: '8px',
+                paddingLeft: '4px'
+              }}
+            >
+              ✨ Khám phá nhanh cùng Sakura:
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gap: '8px'
+              }}
+            >
+              {quickCards.map((card, index) => (
                 <button
                   key={index}
                   type="button"
-                  onClick={() => onQuickPrompt(prompt)}
+                  onClick={() => onQuickPrompt(card.prompt)}
                   style={{
                     textAlign: 'left',
-                    padding: '9px 12px',
-                    borderRadius: '10px',
+                    padding: '11px 12px',
+                    borderRadius: '16px',
                     backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    color: '#334155',
-                    fontSize: '0.79rem',
-                    fontWeight: 500,
+                    border: '1px solid #fbcfe8',
                     cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px',
+                    boxShadow: '0 2px 8px rgba(236, 72, 153, 0.06)',
                     transition: 'all 0.15s ease'
                   }}
                 >
-                  {prompt}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      width: '100%'
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '9px',
+                        backgroundColor: '#fdf2f8',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      {card.icon}
+                    </div>
+                    <span
+                      style={{
+                        fontSize: '0.64rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: '999px',
+                        backgroundColor: '#fce7f3',
+                        color: '#be185d'
+                      }}
+                    >
+                      {card.badge}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      color: '#831843',
+                      lineHeight: 1.35
+                    }}
+                  >
+                    {card.label}
+                  </div>
                 </button>
               ))}
             </div>
@@ -158,4 +267,3 @@ export const MessageList: React.FC<MessageListProps> = ({
     </div>
   );
 };
-

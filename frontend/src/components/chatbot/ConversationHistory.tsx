@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageSquare, Plus, Trash2, X } from 'lucide-react';
+import { MessageCircleHeart, Sparkles, Trash2, ArrowLeft } from 'lucide-react';
 import { AiConversation } from '../../types/aiChat';
 
 interface ConversationHistoryProps {
@@ -39,83 +39,65 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
     <div
       style={{
         position: 'absolute',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        width: '265px',
-        maxWidth: '85%',
-        backgroundColor: '#ffffff',
-        borderRight: '1px solid #e2e8f0',
+        inset: 0,
+        backgroundColor: '#fffafb',
         zIndex: 20,
         display: 'flex',
-        flexDirection: 'column',
-        boxShadow: '6px 0 20px rgba(15, 23, 42, 0.08)'
+        flexDirection: 'column'
       }}
     >
       <div
         style={{
-          padding: '12px 14px',
-          borderBottom: '1px solid #f1f5f9',
+          padding: '12px 16px',
+          borderBottom: '1px solid #fce7f3',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          backgroundColor: '#ffffff'
         }}
       >
-        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a' }}>
-          Lịch sử trò chuyện ({conversations.length})
+        <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#831843' }}>
+          🌸 Nhật ký trò chuyện với Sakura ({conversations.length})
         </span>
         <button
           type="button"
           onClick={onClosePanel}
           style={{
-            background: 'none',
-            border: 'none',
-            color: '#64748b',
+            background: '#fdf2f8',
+            border: '1px solid #f9a8d4',
+            borderRadius: '999px',
+            color: '#be185d',
             cursor: 'pointer',
-            padding: '4px',
-            display: 'flex'
-          }}
-          title="Đóng danh sách"
-        >
-          <X size={16} />
-        </button>
-      </div>
-
-      <div style={{ padding: '10px 12px', borderBottom: '1px solid #f1f5f9' }}>
-        <button
-          type="button"
-          onClick={() => {
-            onNewConversation();
-            onClosePanel();
-          }}
-          style={{
-            width: '100%',
-            padding: '8px 12px',
-            borderRadius: '8px',
-            border: '1px dashed #6366f1',
-            backgroundColor: '#eef2ff',
-            color: '#4338ca',
+            padding: '4px 10px',
+            fontSize: '0.73rem',
             fontWeight: 600,
-            fontSize: '0.8rem',
-            cursor: 'pointer',
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px'
+            gap: '4px'
           }}
         >
-          <Plus size={15} /> Cuộc trò chuyện mới
+          <ArrowLeft size={13} /> Quay lại chat
         </button>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '12px' }}>
         {loading ? (
-          <div style={{ padding: '20px', textAlign: 'center', fontSize: '0.8rem', color: '#64748b' }}>
-            Đang tải lịch sử...
+          <div style={{ padding: '24px', textAlign: 'center', fontSize: '0.82rem', color: '#be185d' }}>
+            Đang tải nhật ký trò chuyện...
           </div>
         ) : conversations.length === 0 ? (
-          <div style={{ padding: '24px 12px', textAlign: 'center', fontSize: '0.8rem', color: '#94a3b8' }}>
-            Chưa có cuộc trò chuyện nào trong khóa học này.
+          <div
+            style={{
+              padding: '32px 16px',
+              textAlign: 'center',
+              fontSize: '0.82rem',
+              color: '#9d174d',
+              backgroundColor: '#ffffff',
+              borderRadius: '16px',
+              border: '1px dashed #f9a8d4'
+            }}
+          >
+            Bạn chưa có cuộc trò chuyện nào được lưu. Hãy đặt câu hỏi đầu tiên cho Sakura nhé! 🌸
           </div>
         ) : (
           conversations.map((conv) => {
@@ -127,31 +109,45 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  gap: '6px',
-                  padding: '8px 10px',
-                  borderRadius: '8px',
-                  marginBottom: '4px',
-                  backgroundColor: isActive ? '#eef2ff' : 'transparent',
-                  border: isActive ? '1px solid #c7d2fe' : '1px solid transparent',
-                  cursor: 'pointer'
+                  gap: '8px',
+                  padding: '10px 12px',
+                  borderRadius: '14px',
+                  marginBottom: '8px',
+                  backgroundColor: isActive ? '#fdf2f8' : '#ffffff',
+                  border: isActive ? '1.5px solid #f472b6' : '1px solid #fce7f3',
+                  boxShadow: isActive
+                    ? '0 4px 12px rgba(236, 72, 153, 0.12)'
+                    : '0 1px 3px rgba(15, 23, 42, 0.03)',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
                 }}
                 onClick={() => {
                   onSelectConversation(conv.id);
                   onClosePanel();
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', minWidth: 0, flex: 1 }}>
-                  <MessageSquare
-                    size={15}
-                    color={isActive ? '#4f46e5' : '#64748b'}
-                    style={{ marginTop: '2px', flexShrink: 0 }}
-                  />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+                  <div
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '10px',
+                      backgroundColor: isActive ? '#ec4899' : '#fce7f3',
+                      color: isActive ? '#ffffff' : '#db2777',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}
+                  >
+                    <MessageCircleHeart size={16} />
+                  </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div
                       style={{
-                        fontSize: '0.8rem',
-                        fontWeight: isActive ? 700 : 500,
-                        color: isActive ? '#312e81' : '#334155',
+                        fontSize: '0.82rem',
+                        fontWeight: isActive ? 700 : 600,
+                        color: isActive ? '#831843' : '#334155',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis'
@@ -160,7 +156,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
                     >
                       {conv.title}
                     </div>
-                    <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: '2px' }}>
+                    <div style={{ fontSize: '0.69rem', color: '#94a3b8', marginTop: '2px' }}>
                       {formatDate(conv.updated_at || conv.created_at)}
                     </div>
                   </div>
@@ -174,24 +170,51 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
                     onDeleteConversation(conv.id);
                   }}
                   style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#94a3b8',
+                    background: '#fff1f2',
+                    border: '1px solid #fecdd3',
+                    color: '#e11d48',
                     cursor: 'pointer',
-                    padding: '4px',
-                    borderRadius: '4px',
+                    padding: '6px',
+                    borderRadius: '8px',
                     display: 'flex',
                     flexShrink: 0
                   }}
                 >
-                  <Trash2 size={14} />
+                  <Trash2 size={13} />
                 </button>
               </div>
             );
           })
         )}
       </div>
+
+      <div style={{ padding: '12px 16px', borderTop: '1px solid #fce7f3', backgroundColor: '#ffffff' }}>
+        <button
+          type="button"
+          onClick={() => {
+            onNewConversation();
+            onClosePanel();
+          }}
+          style={{
+            width: '100%',
+            padding: '10px 14px',
+            borderRadius: '999px',
+            border: 'none',
+            background: 'linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)',
+            color: '#ffffff',
+            fontWeight: 700,
+            fontSize: '0.82rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+            boxShadow: '0 4px 12px rgba(236, 72, 153, 0.3)'
+          }}
+        >
+          <Sparkles size={15} /> Bắt đầu cuộc hội thoại mới
+        </button>
+      </div>
     </div>
   );
 };
-
